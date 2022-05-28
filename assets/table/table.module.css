@@ -1,0 +1,78 @@
+.pokertable{
+    width: 1000px;
+    height: 600px;
+    background-image: url("/images/q/table-ps.png");
+    background-repeat: no-repeat, repeat;
+    background-size: 100%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+ }
+ 
+ .test_tablo{
+    background-image: url("/images/q/tablo-ps.png");
+    background-repeat: no-repeat, no-repeat;
+    
+    height: 55px;
+    width: 130px;
+     
+ }
+.tablo_player{
+    background-color: black;
+    width: 300px;
+}
+.box_card{  
+    height: 75px;
+    width: 90px;
+}
+ 
+.place1{  
+    position: relative;
+    top: 80px;
+    right: -580px;
+}
+.place2{  
+    position: relative;
+    top: 100px;
+    right: -780px;
+}
+.place3{  
+    position: relative;
+    top: 190px;
+    right: -810px;
+}
+.place4{  
+    position: relative;
+    top: 270px;
+    right: -705px;
+}
+.place5{  
+    position: relative;
+    top: 215px;
+    right: -525px;
+}
+.place6{  
+    position: relative;
+    top: 140px;
+    right: -365px;
+}
+.place7{  
+    position: relative;
+    top: 40px;
+    right: -180px;
+}
+.place8{  
+    position: relative;
+    top: -200px;
+    right: -90px;
+}
+.place9{  
+    position: relative;
+    top: -440px;
+    right: -120px;
+}
+.place10{  
+    position: relative;
+    top: -595px;
+    right: -310px;
+}
