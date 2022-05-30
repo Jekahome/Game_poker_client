@@ -7,72 +7,187 @@
     display: block;
     margin-left: auto;
     margin-right: auto;
+    position: relative;  
+    top:119px;
  }
- 
- .test_tablo{
-    background-image: url("/images/q/tablo-ps.png");
-    background-repeat: no-repeat, no-repeat;
+.table_pot{
+    position: relative;
+    top: -1181px;
+    left: 12px;
+    color: #f0a20d;
+}  
+.control_btn{
+    position: relative;  
+    top:99px;
+}
+.table_cards{
+    position: relative;
+    top: -1185px;
+    left: 406px;
+}
+.table_cards_item{
+    position: relative;  
+    margin-right: 2px;
+    display: inline;
+}
+.total_chips{
+    position: relative;  
+    top: -6px;
+    left: 0px;
+}
+.chips{
+    position: relative;
+    top: 41px;
+    left: -396px;
+    display: inline;
+}
+    .place1{
+    position: relative;    
+    height: 130px;
+    width: 170px;
+    top: -103px;
+    left: 440px;
+    }
+    .place1_chips{
+    position: relative;    
+    top: 5px;
+    left: 323px;
+    }
+    .place2{
+    position: relative;    
+    height: 130px;
+    width: 170px;
+    top: -207px;
+    left: 728px;
+    }
+    .place3{
+    position: relative;    
+    height: 130px;
+    width: 170px;
+    top: -231px;
+    left: 937px;
+    }
     
+    .place4{
+    position: relative;    
+    height: 130px;
+    width: 170px;
+    top: -136px;
+    left: 952px;
+    }
+    .place5{
+    position: relative;    
+    height: 130px;
+    width: 170px;
+    top: -137px;
+    left: 728px;
+    }
+    .place6{
+    position: relative;    
+    height: 130px;
+    width: 170px;
+    top: -221px;
+    left: 440px;
+    }
+    .place7{
+    position: relative;    
+    height: 130px;
+    width: 170px;
+    top: -383px;
+    left: 142px;
+    }
+    .place8{
+    position: relative;    
+    height: 130px;
+    width: 170px;
+    top: -655px;
+    left: -118px;
+    }
+    .place9{
+    position: relative;    
+    height: 130px;
+    width: 170px;
+    top: -1000px;
+    left: -102px;
+    }
+    .place10{
+    position: relative;    
+    height: 130px;
+    width: 170px;
+    top: -1246px;
+    left: 142px;
+    }
+    
+    .box_card{  
+    position: relative;
+    display: inline;
+    left: 40px;
+    
+    /*height: 65px;
+    width: 80px;*/
+    }
+    .inform_tablo_l{
+    background-image: url("/images/q/tablo-l-new.png");
+    background-repeat: no-repeat, repeat;
     height: 55px;
-    width: 130px;
-     
- }
-.tablo_player{
-    background-color: black;
-    width: 300px;
-}
-.box_card{  
-    height: 75px;
-    width: 90px;
-}
- 
-.place1{  
+    width: 200px;
+    /*display: position;*/
+    margin-top:-7px;
+    }
+    .inform_tablo_r{
+    background-image: url("/images/q/tablo-r-new.png");
+    background-repeat: no-repeat, no-repeat;
+    height: 55px;
+    width: 200px;
+    display: position;
+    margin-top:-7px;
+    }
+    .round_l {
     position: relative;
-    top: 80px;
-    right: -580px;
-}
-.place2{  
+    top:2px;
+    left: 2px;
+    border-radius: 100px; /* Радиус скругления */
+    box-shadow: 0 0 0 3px grey, 0 0 13px #333; /* Параметры теней */
+    width:60px;
+    height:60px;
+    }
+    .round_r {
     position: relative;
-    top: 100px;
-    right: -780px;
-}
-.place3{  
+    top:2px;
+    left: 156px;
+    border-radius: 100px; /* Радиус скругления */
+    box-shadow: 0 0 0 3px grey, 0 0 13px #333; /* Параметры теней */
+    width:54px;
+    height:54px;
+    } 
+    
+    .name_info{
     position: relative;
-    top: 190px;
-    right: -810px;
-}
-.place4{  
+    display: inline;
+    top:-14px;
+    left:7px;
+    color: rgb(246, 250, 246);
+    }
+    .money_info{
     position: relative;
-    top: 270px;
-    right: -705px;
-}
-.place5{  
+    display: inline;
+    top:7px;
+    left:-68px;
+    font-weight: bold;
+    color: #f0a20d;
+    }
+    .name_money_info{
     position: relative;
-    top: 215px;
-    right: -525px;
-}
-.place6{  
+    display: inline;
+    }
+    .img{
     position: relative;
-    top: 140px;
-    right: -365px;
-}
-.place7{  
-    position: relative;
-    top: 40px;
-    right: -180px;
-}
-.place8{  
-    position: relative;
-    top: -200px;
-    right: -90px;
-}
-.place9{  
-    position: relative;
-    top: -440px;
-    right: -120px;
-}
-.place10{  
-    position: relative;
-    top: -595px;
-    right: -310px;
-}
+    top: -9px;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    box-sizing: border-box;
+    display: inline;
+    /*height:65px;
+    width:40px;*/
+    }

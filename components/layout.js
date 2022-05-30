@@ -48,7 +48,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
   
 export default function Layout({children}) {
     //return <html lang="en"><div className="container">{children}</div></html> 
-    return <div className="container">
+    return <div className="container-fluid">
                 <div className={styles.layout}>
                     <ul className="nav justify-content-center">
                         <li className="nav-item">

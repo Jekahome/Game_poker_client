@@ -1,11 +1,19 @@
+
+
+ReactJs
+https://create-react-app.dev/docs/adding-images-fonts-and-files/
+
+NextJs
+https://nextjs.org/docs/api-reference/next/image
 https://nextjs.org/learn/foundations/from-react-to-nextjs/getting-started-with-nextjs
 https://nextjs.org/learn/basics/create-nextjs-app/setup
 
 https://ru.reactjs.org/docs/introducing-jsx.html
 https://ru.reactjs.org/docs/add-react-to-a-website.html
-https://docs.google.com/spreadsheets/d/1LlnfCoqkow7yAmee4IkqiGos9H7RWYQs9332sFh_rpk/edit#gid=983198096
 
-https://docs.google.com/spreadsheets/d/1LlnfCoqkow7yAmee4IkqiGos9H7RWYQs9332sFh_rpk/edit#gid=165754394
+
+Map
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/forEach
 
 Запуск
 npm run dev
