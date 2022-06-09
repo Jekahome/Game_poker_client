@@ -1,5 +1,5 @@
  /*
-     Старшая карта — High card
+    Старшая карта — High card
     Пара — Pair (pair of kings)
     Две пары — Two pairs
     Тройка — Three of a kind
@@ -12,52 +12,51 @@
 */
 'use strict';
 
-
-
 class Card{
-      id = 0;
-      key = "";
-      card_suits={}; 
-      card_nom={};  
+    #_id = 0;
+    #_key = "";
+    #_suits=0; 
+    #_nom=0;  
     
-    constructor(id=0,key="",suit={}, nom={}){
-        this.id = id;
-        this.key = key;
-        this.card_suits = suit;
-        this.card_nom = nom;
+    constructor(id=0,key="",suit=0, nom=0){
+        this.#_id = id;
+        this.#_key = key;
+        this.#_suits = suit;
+        this.#_nom = nom;
     }
-    
     get id(){
-        return this.key;
+        return this.#_id;
     }
     get key(){
-        return this.key;
+        return this.#_key;
     }
-    /*toString() {
-        return {id:`${this.id}`,key: `${this.key}`};
-    }*/
+    get nom(){
+        return this.#_nom;
+    }
+    get suit(){
+        return this.#_suits;
+    }
 }
-
 const cardSuits = {
-  Diamonds:'Diamonds',/*Бубы*/
-  Hearts:'Hearts',/*Черви*/
-  Clubs:'Clubs',/*Трефы*/
-  Spades:'Spades'/*Пики*/
+  Spades:1,//'Spades'/*Пики*/  
+  Hearts:10,//'Hearts',/*Черви*/
+  Diamonds:100,//'Diamonds',/*Бубы*/
+  Clubs:1000,//'Clubs',/*Трефы*/
 };
 const cardNom = {
-  Two:'Two', 
-  Three:'Three', 
-  Four:'Four', 
-  Five:'Five',
-  Six:'Six', 
-  Seven:'Seven',
-  Eight:'Eight',
-  Nine:'Nine',
-  Ten:'Ten',
-  Jack:'Jack',
-  Queen:'Queen',
-  King:'King',
-  Ace:'Ace'
+  Two:1,//'Two', 
+  Three:2,//'Three', 
+  Four:4,//'Four', 
+  Five:8,//'Five',
+  Six:16,//'Six', 
+  Seven:32,//'Seven',
+  Eight:64,//'Eight',
+  Nine:128,//'Nine',
+  Ten:256,//'Ten',
+  Jack:512,//'Jack',
+  Queen:1024,//'Queen',
+  King:2048,//'King',
+  Ace:4096//'Ace'
 };
 
 class Deck{
@@ -84,14 +83,14 @@ class Deck{
         } else if (this.#cards.size == 1){
             const iter = this.#cards.keys();
             let id = iter.next().value;
-            if (!this.#cards.has(id)){console.log("!!!!!!!!!!!!");
+            if (!this.#cards.has(id)){ 
                 return null;
             }
-            let v = this.#cards.get(id);
+            let ret = this.#cards.get(id);
             this.#cards.delete(id);
             this.#cards.clear();
-            return v;
-        }else{console.log("@@@@@@@@@@@@@@@@@");
+            return ret;
+        }else{ 
             return null; 
         }
      }

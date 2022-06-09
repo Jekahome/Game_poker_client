@@ -1,4 +1,9 @@
 
+Запуск
+npm run dev
+
+Open: http://localhost:3000/
+
 
 ReactJs
 https://create-react-app.dev/docs/adding-images-fonts-and-files/
@@ -15,10 +20,12 @@ https://ru.reactjs.org/docs/add-react-to-a-website.html
 Map
 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/forEach
 
-Запуск
-npm run dev
+WASM
+https://rustwasm.github.io/docs/wasm-pack/introduction.html
+https://github.com/ignacio-gc/wasm-gol-next
+https://rustwasm.github.io/docs/book/game-of-life/setup.html
+https://github.com/vercel/next.js/blob/canary/examples/with-webassembly/pages/index.js
 
-Open: http://localhost:3000/
 https://ru.reactjs.org/docs/context.html
 
 Переход на typescript:
@@ -30,6 +37,79 @@ https://dev-gang.ru/article/naczalo-raboty-s-postgres-v-vashem-prilozhenii-react
 https://docs.sequelizejs.com/docs/v7/getting-started/
 https://qna.habr.com/q/418785
 https://webformyself.com/top-5-vstroennyx-baz-dannyx-dlya-prilozhenij-javascript/
+
+### WASM library
+
+```
+Cargo.toml
+
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+default = ["console_error_panic_hook"]
+
+[dependencies]
+wasm-bindgen = { version = "0.2.80", features = ['serde-serialize'] }
+js-sys = "0.3.45"
+ 
+wasm-bindgen-futures = "0.4.30"
+serde = { version = "^1.0", features = ["derive"] }
+serde_derive = "^1.0"
+
+# The `console_error_panic_hook` crate provides better debugging of panics by
+# logging them with `console.error`. This is great for development, but requires
+# all the `std::fmt` and `std::panicking` infrastructure, so isn't great for
+# code size when deploying.
+console_error_panic_hook = { version = "0.1.6", optional = true }
+
+# `wee_alloc` is a tiny allocator for wasm that is only ~1K in code size
+# compared to the default allocator's ~10K. It is slower than the default
+# allocator, however.
+#
+# Unfortunately, `wee_alloc` requires nightly Rust when targeting wasm for now.
+wee_alloc = { version = "0.4.5", optional = true }
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3.13"
+
+[profile.release]
+# Tell `rustc` to optimize for small code size.
+opt-level = "s"
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
+
+```
+
+```
+WASM build
+
+$ wasm-pack build --out-dir pkg
+```
+
+```
+#[wasm_bindgen]  
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+pub struct Card {
+    pub n: N,
+    pub m: M,
+}
+
+#[wasm_bindgen]
+impl Card {
+    // use in Js  let card  = new Card(n,m); Without constructor let card = Card.new(n,m); 
+    #[wasm_bindgen(constructor)]
+    pub fn new(n: N, m: M) -> Self {
+        Self { n, m }
+    }
+    pub fn get(self)->wasm_bindgen::JsValue {
+        wasm_bindgen::JsValue::from(self)   
+    }
+}
+
+```
 
 **************************************************************************************
 

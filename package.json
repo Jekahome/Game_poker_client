@@ -8,6 +8,9 @@
     "swr": "^1.2.2"
   },
   "scripts": {
-    "dev": "next dev"
+    "dev": "next",
+    "build": "next build",
+    "build-rust": "wasm-pack build",
+    "start": "next start"
   }
 }

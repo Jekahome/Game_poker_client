@@ -51,22 +51,22 @@ export default function Layout({children}) {
     return <div className="container-fluid">
                 <div className={styles.layout}>
                     <ul className="nav justify-content-center">
-                        <li className="nav-item">
+                        <li key={1} className="nav-item">
                         <LinkHome/>
                         </li>
-                        <li className="nav-item">
+                        <li key={2} className="nav-item">
                         <LinkTable/>
                         </li>
-                        <li className="nav-item">
+                        <li key={3} className="nav-item">
                         <LinkExamapleState/>
                         </li>
-                        <li className="nav-item">
+                        <li key={4} className="nav-item">
                         <LinkExamapleContext/>
                         </li>
-                        <li className="nav-item">
+                        <li key={5} className="nav-item">
                         <LinkExamapleUseState/>
                         </li>
-                        <li className="nav-item">
+                        <li key={6} className="nav-item">
                         <LinkExamapleDb/>
                         </li>
                     </ul> 

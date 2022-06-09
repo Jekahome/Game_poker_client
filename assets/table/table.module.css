@@ -17,8 +17,10 @@
     color: #f0a20d;
 }  
 .control_btn{
-    position: relative;  
-    top:99px;
+    position: relative;
+    top: 58px;
+    display: block;
+    left: 598px;
 }
 .table_cards{
     position: relative;
@@ -41,6 +43,7 @@
     left: -396px;
     display: inline;
 }
+ 
     .place1{
     position: relative;    
     height: 130px;
@@ -49,9 +52,10 @@
     left: 440px;
     }
     .place1_chips{
-    position: relative;    
-    top: 5px;
-    left: 323px;
+        position: relative;    
+        top: 5px;
+        left: 0px;
+        width: 132px;
     }
     .place2{
     position: relative;    
@@ -60,6 +64,12 @@
     top: -207px;
     left: 728px;
     }
+    .place2_chips{
+        position: relative;    
+        top: 5px;
+        left: 0px;
+        width: 132px;
+    }
     .place3{
     position: relative;    
     height: 130px;
@@ -67,13 +77,24 @@
     top: -231px;
     left: 937px;
     }
-    
+    .place3_chips{
+        position: relative;    
+        top: 5px;
+        left: 0px;
+        width: 132px;
+    }
     .place4{
     position: relative;    
     height: 130px;
     width: 170px;
     top: -136px;
     left: 952px;
+    }
+    .place4_chips{
+        position: relative;    
+        top: 5px;
+        left: 0px;
+        width: 132px;
     }
     .place5{
     position: relative;    
@@ -82,12 +103,23 @@
     top: -137px;
     left: 728px;
     }
+    .place5_chips{
+        position: relative;    
+        top: 5px;
+        left: 0px;
+        width: 132px;
+    }
     .place6{
     position: relative;    
     height: 130px;
     width: 170px;
-    top: -221px;
+    top: -223px;
     left: 440px;
+    }
+    .place6_chips{
+        position: relative;    
+        top: 5px;
+        left: 0px;
     }
     .place7{
     position: relative;    
@@ -96,12 +128,24 @@
     top: -383px;
     left: 142px;
     }
+    .place7_chips{
+        position: relative;    
+        top: 5px;
+        left: 0px;
+        width: 132px;
+    }
     .place8{
     position: relative;    
     height: 130px;
     width: 170px;
     top: -655px;
     left: -118px;
+    }
+    .place8_chips{
+        position: relative;    
+        top: 5px;
+        left: 0px;
+        width: 132px;
     }
     .place9{
     position: relative;    
@@ -110,6 +154,12 @@
     top: -1000px;
     left: -102px;
     }
+    .place9_chips{
+        position: relative;    
+        top: 5px;
+        left: 0px;
+        width: 132px;
+    }
     .place10{
     position: relative;    
     height: 130px;
@@ -117,70 +167,56 @@
     top: -1246px;
     left: 142px;
     }
-    
-    .box_card{  
-    position: relative;
-    display: inline;
-    left: 40px;
-    
-    /*height: 65px;
-    width: 80px;*/
+    .place10_chips{
+        position: relative;    
+        top: 5px;
+        left: 0px;
+        width: 132px;
     }
-    .inform_tablo_l{
+.box_card{  
+    position: relative;
+    display: inline-block;
+    left: 40px;
+    height: 65px;
+}
+.inform_tablo_l{
     background-image: url("/images/q/tablo-l-new.png");
     background-repeat: no-repeat, repeat;
     height: 55px;
     width: 200px;
-    /*display: position;*/
     margin-top:-7px;
-    }
-    .inform_tablo_r{
-    background-image: url("/images/q/tablo-r-new.png");
-    background-repeat: no-repeat, no-repeat;
-    height: 55px;
-    width: 200px;
-    display: position;
-    margin-top:-7px;
-    }
-    .round_l {
+}
+
+.round_l {
     position: relative;
     top:2px;
     left: 2px;
-    border-radius: 100px; /* Радиус скругления */
-    box-shadow: 0 0 0 3px grey, 0 0 13px #333; /* Параметры теней */
+    border-radius: 100px; 
+    box-shadow: 0 0 0 3px grey, 0 0 13px #333;
     width:60px;
     height:60px;
-    }
-    .round_r {
+}
+ 
+.name_info{
     position: relative;
-    top:2px;
-    left: 156px;
-    border-radius: 100px; /* Радиус скругления */
-    box-shadow: 0 0 0 3px grey, 0 0 13px #333; /* Параметры теней */
-    width:54px;
-    height:54px;
-    } 
-    
-    .name_info{
-    position: relative;
-    display: inline;
-    top:-14px;
-    left:7px;
+    top: -56px;
+    left: 69px;
     color: rgb(246, 250, 246);
-    }
-    .money_info{
+}
+
+.money_info{
     position: relative;
-    display: inline;
-    top:7px;
-    left:-68px;
+    top: -57px;
+    left: 68px;
     font-weight: bold;
     color: #f0a20d;
-    }
-    .name_money_info{
+}
+.name_money_info{
     position: relative;
     display: inline;
-    }
-    .img{
+}
+
+.img{
     position: relative;
     top: -9px;
     left: 0;
@@ -188,6 +224,4 @@
     right: 0;
     box-sizing: border-box;
     display: inline;
-    /*height:65px;
-    width:40px;*/
-    }
+}
