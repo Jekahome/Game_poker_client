@@ -5,12 +5,18 @@
     "next": "^12.1.4",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
+    "sharp": "^0.30.6",
     "swr": "^1.2.2"
   },
   "scripts": {
-    "dev": "next",
+    "dev": "next -p 3000",
     "build": "next build",
+    "lint": "next lint",
     "build-rust": "wasm-pack build",
     "start": "next start"
+  },
+  "devDependencies": {
+    "eslint": "8.17.0",
+    "eslint-config-next": "12.1.6"
   }
 }

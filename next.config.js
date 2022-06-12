@@ -6,4 +6,8 @@
       config.experiments = { asyncWebAssembly: true }
       return config
     },
+    reactStrictMode: true,
+    compiler: {
+      styledComponents: true,
+    },
   }

@@ -1,49 +1,72 @@
  
 import Head from 'next/head'
-import Link from 'next/link'
-import Image from 'next/image'
 import Script from 'next/script'
 import { useState } from 'react'
-import Layout from '../components/layout'
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 // Хук useState[0=>value,1=>func upd]
 
  
+import Link from 'next/link'
+import Image from 'next/image'
+import Layout from '../components/layout'
 
-export default function HomePage() {
-  const names = ['Ada Lovelace', 'Grace Hopper', 'Margaret Hamilton']
+import styles from '../assets/table/table.module.css'
+import * as React from 'react'
 
-  const [likes, setLikes] = useState(0)
-
-  function handleClick() {
-    setLikes(likes + 1)
-  }
-
-  return (
-    <Layout>
-        
-      <Script
-        src="https://connect.facebook.net/en_US/sdk.js"
-        strategy="lazyOnload"
-        onLoad={() =>
-          console.log(`script loaded correctly, window.FB has been populated`)
-        }
-      />
-
-        <div>
-      
-            <ul>
-              {names.map(name => (
-                <li key={name}>{name}</li>
-              ))}
-            </ul>
-            <button onClick={handleClick}>Like ({likes})</button>
+const Home = () => (
+ // GRID
+    <div className="row row-cols-1 row-cols-md-2 g-4">
+      <div className="col">
+        <div className="card border-dark text-dark bg-warning" style={{marginRight: 12 + 'em'}}>
+          <Image className="card-img-top" src="/images/SnG.jpg"  height={150}  width={100}  alt="SnG"/>
+          <div className="card-body">
+            <h5 className="card-title">Card title</h5>
+            <p className="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+          </div>
         </div>
-
-    </Layout>
+      </div>
+      <div className="col">
+        <div className="card border-dark text-dark bg-warning" style={{marginRight: 12 + 'em'}}>
+        <Image className="card-img-top" src="/images/Freeroll.jpg"  height={150}  width={100}  alt="Freeroll"/>
+          <div className="card-body">
+            <h5 className="card-title">Card title</h5>
+            <p className="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+          </div>
+        </div>
+      </div>
+      <div className="col">
+        <div className="card border-dark text-dark bg-warning" style={{marginRight: 12 + 'em'}}>
+        <Image className="card-img-top" src="/images/SnG.jpg"  height={150}  width={100}  alt="SnG"/>
+          <div className="card-body">
+            <h5 className="card-title">Card title</h5>
+            <p className="card-text">This is a longer card with supporting text below as a natural lead-in to additional content.</p>
+          </div>
+        </div>
+      </div>
+      <div className="col">
+        <div className="card border-dark text-dark bg-warning" style={{marginRight: 12 + 'em'}}>
+        <Image className="card-img-top" src="/images/Freeroll.jpg"  height={150}  width={100}  alt="Freeroll"/>
+          <div className="card-body">
+            <h5 className="card-title">Card title</h5>
+            <p className="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+          </div>
+        </div>
+      </div>
+    </div>
   )
-}
+  
+// Rout: /
+ 
+ export default class Index extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+  render() {
+   // console.log("render",this.state.value,this.props.value);
+      return <Layout><Home/></Layout>
+  }
+ }
 
 /*
 Елемент:
