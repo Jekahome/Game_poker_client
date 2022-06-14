@@ -1,13 +1,13 @@
 
   module.exports = {
-    experimental: { images: { layoutRaw: true } },
+    experimental: { images: { layoutRaw: true }},
     webpack(config) {
       config.output.webassemblyModuleFilename = 'static/wasm/[modulehash].wasm'
-      config.experiments = { asyncWebAssembly: true }
+      config.experiments = { asyncWebAssembly: true,layers: true, }
       return config
     },
-    reactStrictMode: true,
+   /* reactStrictMode: true,
     compiler: {
       styledComponents: true,
-    },
+    },*/
   }

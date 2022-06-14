@@ -31,6 +31,17 @@ export default class Player {
     get money(){
       return this.#_money;
     }
+    turn_down_money(m){
+       if (this.#_money < m){
+          return null;
+       }else{
+         this.#_money-=m;
+         return m;
+       }
+    }
+    add_money(m){
+      this.#_money+=m;
+    }
     build_url(card) {
       let url = "/images/q/";
       url = url.concat(card.key);

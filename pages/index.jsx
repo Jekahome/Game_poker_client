@@ -66,6 +66,23 @@ const Home = () => (
    // console.log("render",this.state.value,this.props.value);
       return <Layout><Home/></Layout>
   }
+
+  /*
+  static getDerivedStateFromProps(props, state){
+      return null;
+  }
+  shouldComponentUpdate(nextProps) {
+      console.log('shouldComponentUpdate',this.props.showNav);
+      return  !(nextProps.showNav === this.props.showNav)
+  }
+  componentDidUpdate(){
+    console.log('componentDidUpdate');
+  }
+  
+  componentWillUnmount(){
+    console.log('componentWillUnmount',Table.count_didmount);
+  }
+  */
  }
 
 /*
