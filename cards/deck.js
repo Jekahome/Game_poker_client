@@ -94,12 +94,22 @@ class Deck{
             return null; 
         }
      }
-   
+    get_card_test(key){
+       for (let index=0;index<this.#raw_cards.length;index++){
+           if (this.#raw_cards[index].key == key){
+               return this.#raw_cards[index];
+           }
+       }  
+       return null;
+    }
+
     new_deck(){ 
         this.#cards.clear();
+        this.#cards = new Map();
         for (let v of this.#raw_cards) {
             this.#cards.set(v.id, v);
         }
+        return this;
     }
     #load(){ 
         this.#raw_cards.push(new Card( 1,"2d",cardSuits.Diamonds,cardNom.Two ));
@@ -138,22 +148,22 @@ class Deck{
         this.#raw_cards.push(new Card( 34,"10h",cardSuits.Hearts,cardNom.Ten ));
         this.#raw_cards.push(new Card( 35,"10c",cardSuits.Clubs,cardNom.Ten ));
         this.#raw_cards.push(new Card( 36,"10s",cardSuits.Spades,cardNom.Ten ));
-        this.#raw_cards.push(new Card( 37,"jd",cardSuits.Diamonds,cardNom.Jack ));
-        this.#raw_cards.push(new Card( 38,"jh",cardSuits.Hearts,cardNom.Jack ));
-        this.#raw_cards.push(new Card( 39,"jc",cardSuits.Clubs,cardNom.Jack ));
-        this.#raw_cards.push(new Card( 40,"js",cardSuits.Spades,cardNom.Jack ));
-        this.#raw_cards.push(new Card( 41,"qd",cardSuits.Diamonds,cardNom.Queen ));
-        this.#raw_cards.push(new Card( 42,"qh",cardSuits.Hearts,cardNom.Queen ));
-        this.#raw_cards.push(new Card( 43,"qc",cardSuits.Clubs,cardNom.Queen ));
-        this.#raw_cards.push(new Card( 44,"qs",cardSuits.Spades,cardNom.Queen ));
-        this.#raw_cards.push(new Card( 45,"kd",cardSuits.Diamonds,cardNom.King));
-        this.#raw_cards.push(new Card( 46,"kh",cardSuits.Hearts,cardNom.King ));
-        this.#raw_cards.push(new Card( 47,"kc",cardSuits.Clubs,cardNom.King ));
-        this.#raw_cards.push(new Card( 48,"ks",cardSuits.Spades,cardNom.King ));
-        this.#raw_cards.push(new Card( 49,"ad",cardSuits.Diamonds,cardNom.Ace ));
-        this.#raw_cards.push(new Card( 50,"ah",cardSuits.Hearts,cardNom.Ace ));
-        this.#raw_cards.push(new Card( 51,"ac",cardSuits.Clubs,cardNom.Ace));
-        this.#raw_cards.push(new Card( 52,"as",cardSuits.Spades,cardNom.Ace ));
+        this.#raw_cards.push(new Card( 37,"Jd",cardSuits.Diamonds,cardNom.Jack ));
+        this.#raw_cards.push(new Card( 38,"Jh",cardSuits.Hearts,cardNom.Jack ));
+        this.#raw_cards.push(new Card( 39,"Jc",cardSuits.Clubs,cardNom.Jack ));
+        this.#raw_cards.push(new Card( 40,"Js",cardSuits.Spades,cardNom.Jack ));
+        this.#raw_cards.push(new Card( 41,"Qd",cardSuits.Diamonds,cardNom.Queen ));
+        this.#raw_cards.push(new Card( 42,"Qh",cardSuits.Hearts,cardNom.Queen ));
+        this.#raw_cards.push(new Card( 43,"Qc",cardSuits.Clubs,cardNom.Queen ));
+        this.#raw_cards.push(new Card( 44,"Qs",cardSuits.Spades,cardNom.Queen ));
+        this.#raw_cards.push(new Card( 45,"Kd",cardSuits.Diamonds,cardNom.King));
+        this.#raw_cards.push(new Card( 46,"Kh",cardSuits.Hearts,cardNom.King ));
+        this.#raw_cards.push(new Card( 47,"Kc",cardSuits.Clubs,cardNom.King ));
+        this.#raw_cards.push(new Card( 48,"Ks",cardSuits.Spades,cardNom.King ));
+        this.#raw_cards.push(new Card( 49,"Ad",cardSuits.Diamonds,cardNom.Ace ));
+        this.#raw_cards.push(new Card( 50,"Ah",cardSuits.Hearts,cardNom.Ace ));
+        this.#raw_cards.push(new Card( 51,"Ac",cardSuits.Clubs,cardNom.Ace));
+        this.#raw_cards.push(new Card( 52,"As",cardSuits.Spades,cardNom.Ace ));
         this.new_deck();
     }  
 }

@@ -11,7 +11,7 @@ export default class Round{
     next(){
         let round = this.#round[this.#current_index];
         this.#current_index++;
-        if (this.#current_index>=4){
+        if (this.#current_index>=5){
             this.#current_index=0;
         }
         return this;

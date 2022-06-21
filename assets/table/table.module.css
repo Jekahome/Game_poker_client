@@ -15,6 +15,7 @@
     top: -1181px;
     left: 12px;
     color: #f0a20d;
+    height: 70px;
 }  
 .control_btn{
     position: relative;
@@ -254,7 +255,7 @@
     background-image: url("/images/q/tablo-l-new.png");
     background-repeat: no-repeat, repeat;
     height: 55px;
-    width: 200px;
+    /*width: 200px;*/
     margin-top:-7px;
 }
 
@@ -294,5 +295,51 @@
     bottom: 0;
     right: 0;
     box-sizing: border-box;
+    display: inline;
+}
+
+
+.activ_player {
+    animation: blink 1.0s infinite;
+    border-radius:50px;
+}
+@keyframes blink {
+    from { box-shadow: -10px -10px -10px 0px #f7f7f7/*, 0 0 10px #f7f7f7*/;  }
+    to { box-shadow: 0px 0px 15px 5px #eaed13;  }
+}
+
+.win_player {
+    animation: win 1.0s infinite;
+    box-shadow: 0px -10px 5px 5px darkred; 
+  
+}
+@keyframes win {
+    from { box-shadow: 0px -10px 5px 5px lightcoral;  }
+    to { box-shadow: 0px -10px 5px 5px darkred;  }
+}
+
+.win_card{ 
+    animation: win_table 5s ease 2s 1;
+    box-shadow: 0px -2px 5px 5px darkred;
+}
+@keyframes win_table {
+    from { box-shadow: 0px -2px 5px 5px  lightcoral;top: -9px;  }
+    to { box-shadow: 0px -2px 5px 5px darkred;top: -55px;  }
+}
+
+.divtest{
+    height: 65px;
+}
+.combination_name{
+    width: 229px;
+    text-align: center;
+}
+
+.show_action{
+    position: relative;
+    top: -3px;
+    left: -23px;
+    font-weight: bold;
+    color: #f0a20d;
     display: inline;
 }
