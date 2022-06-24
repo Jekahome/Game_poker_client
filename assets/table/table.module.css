@@ -73,7 +73,14 @@
         top: 140px;
         left: -30px;
     }
-   
+    .place1_total_bet{
+        position: absolute;
+        top: 194px;
+        left: 10px;
+        font-weight: bold;
+        color: #f0a20d;
+    }
+
     .place2{
     position: relative;    
     height: 130px;
@@ -91,6 +98,13 @@
         position: absolute;  
         top: 136px;
         left: -31px;
+    }
+    .place2_total_bet{
+        position: absolute;
+        top: 191px;
+        left: 7px;
+        font-weight: bold;
+        color: #f0a20d;
     }
 
     .place3{
@@ -111,6 +125,13 @@
         top: 129px;
         left: -39px;
     }
+    .place3_total_bet{
+        position: absolute;
+        top: 148px;
+        left: -67px;  
+        font-weight: bold;
+        color: #f0a20d;
+    }
 
     .place4{
     position: relative;    
@@ -129,6 +150,13 @@
         position: absolute;
         top: 27px;
         left: -40px;
+    }
+    .place4_total_bet{
+        position: absolute;
+        top: 29px;
+        left: -83px;
+        font-weight: bold;
+        color: #f0a20d;
     }
 
     .place5{
@@ -149,6 +177,13 @@
         top: 1px;
         left: 2px;
     }
+    .place5_total_bet{
+        position: absolute;
+        top: -39px;
+        left: 7px;
+        font-weight: bold;
+        color: #f0a20d;
+    }
 
     .place6{
     position: relative;    
@@ -167,6 +202,13 @@
         position: absolute;    
         top: -11px;
         left: 8px;
+    }
+    .place6_total_bet{
+        position: absolute;
+        top: -38px;
+        left: 7px;
+        font-weight: bold;
+        color: #f0a20d;
     }
 
     .place7{
@@ -187,6 +229,13 @@
         top: -8px;
         left: 125px;
     }
+    .place7_total_bet{
+        position: absolute;
+        top: -41px;
+        left: 64px;
+        font-weight: bold;
+        color: #f0a20d;
+    }
 
     .place8{
     position: relative;    
@@ -205,6 +254,13 @@
         position: absolute;   
         top: 36px;
         left: 187px;
+    }
+    .place8_total_bet{
+        position: absolute;
+        top: 26px;
+        left: 194px;
+        font-weight: bold;
+        color: #f0a20d;
     }
 
     .place9{
@@ -225,6 +281,13 @@
         top: 121px;
         left: 177px;
     }
+    .place9_total_bet{
+        position: absolute;
+        top: 139px;
+        left: 179px;
+        font-weight: bold;
+        color: #f0a20d;
+    }
 
     .place10{
     position: relative;    
@@ -243,6 +306,13 @@
         position: absolute;   
         top: 137px;
         left: 127px;
+    }
+    .place10_total_bet{
+        position: absolute;
+        top: 190px;
+        left: 64px;
+        font-weight: bold;
+        color: #f0a20d;
     }
 
 .box_card{  
@@ -308,12 +378,15 @@
     to { box-shadow: 0px 0px 15px 5px #eaed13;  }
 }
 
-.win_player {
-    animation: win 1.0s infinite;
-    box-shadow: 0px -10px 5px 5px darkred; 
-  
+.win_player_card1 {
+    animation: win1 1.0s infinite;
+    box-shadow: -5px -5px 5px 0px darkred; 
 }
-@keyframes win {
+.win_player_card2 {
+    animation: win1 1.0s infinite;
+    box-shadow: -5px -5px 5px 0px darkred; 
+}
+@keyframes win1 {
     from { box-shadow: 0px -10px 5px 5px lightcoral;  }
     to { box-shadow: 0px -10px 5px 5px darkred;  }
 }

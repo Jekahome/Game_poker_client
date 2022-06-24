@@ -4,9 +4,12 @@ import Image from 'next/image'
 import {Card,cardSuits,cardNom} from '../cards/deck'
 
 const CALL = 0;
-const REISE = 1;
-const FOLD = 2;
-const ALL_IN = 3;
+const BET = 1;
+const REISE = 2;
+const FOLD = 3;
+const ALL_IN = 4;
+const CHECK = 5;
+
 
 export default class Player {
     #_id;
@@ -26,7 +29,7 @@ export default class Player {
       this.#_site=site;
       this.#_money=money;
       this.#_total_bet=0;
-      this.#_show_action=CALL;
+      this.#_show_action=null;
     }
     get id(){
        return this.#_id;
@@ -45,6 +48,79 @@ export default class Player {
     }
     set_activ(value){
        this.#_activ=value;
+    }
+    get action(){
+      return this.#_show_action;
+    }
+    set action(action){
+      this.#_show_action=action;
+    }
+    player_action(obj_action){
+       // call fold reise bet
+       // call на предыдущую ставку
+       let action = FOLD;
+       let max_bet = obj_action.max_bet;
+       let choice = Math.round(Math.random()*3);
+      
+      /* if(this.id == 5 || this.id == 9){
+          choice=1;
+       }else if(this.id==7 || this.id == 2){
+          choice=3;
+       }else{
+          choice=0;
+       }*/
+      // if(this.id == 4){ choice=2;} 
+     //  else {choice=0;}
+
+       switch (choice){
+          case 0:{
+            // for CALL / CHECK
+            if(this.get_total_bet()==max_bet){
+               this.action = CHECK;
+               return {action:this.action,bet:this.get_total_bet()};
+            }else if(this.money > max_bet-this.get_total_bet()){
+               this.turn_down_money(max_bet-this.get_total_bet());
+               this.action = CALL;
+               return {action:this.action,bet:this.get_total_bet()};
+            }else if(this.money <= max_bet-this.get_total_bet()){
+               this.turn_down_money(max_bet-this.get_total_bet());
+               this.action = ALL_IN;
+               return {action:this.action,bet:this.get_total_bet()};
+            }
+          }
+          break;
+          case 1:{
+             // for REISE x2
+             if(this.money > (max_bet-this.get_total_bet())*2){
+               this.turn_down_money(max_bet*2-this.get_total_bet());
+               this.action = REISE;
+               return {action:this.action,bet:this.get_total_bet()};
+            }else if(this.money <= (max_bet*2-this.get_total_bet())){
+               this.turn_down_money(this.money);
+               this.action = ALL_IN;
+               return {action:this.action,bet:this.get_total_bet()};
+            }
+          }
+          break;
+          case 2:{
+               // for ALL_IN
+               this.turn_down_money(this.money);
+               this.action = ALL_IN;
+               return {action:this.action,bet:this.get_total_bet()};
+          }
+          break;
+          case 3:{
+               // for FOLD
+               this.action = FOLD;
+               return {action:this.action,bet:0};
+          }
+          break;
+          default:
+          console.log('WTF');
+       }
+
+       
+       return null;
     }
     get money(){
       return this.#_money;
