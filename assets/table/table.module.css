@@ -387,8 +387,8 @@
     box-shadow: -5px -5px 5px 0px darkred; 
 }
 @keyframes win1 {
-    from { box-shadow: 0px -10px 5px 5px lightcoral;  }
-    to { box-shadow: 0px -10px 5px 5px darkred;  }
+    from { box-shadow: 0px 0px 5px 5px lightcoral;  }
+    to { box-shadow: 0px 0px 5px 5px darkred;  }
 }
 
 .win_card{ 

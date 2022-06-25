@@ -126,15 +126,18 @@ function sleep (time) {
         combination_name:'',
         wait_step_game_circle:5000,
         is_cards_dealt:false,
-        
+        is_first_bet:false,
      };
      this.getControlBtn = this.getControlBtn.bind(this);
      this.getPlayers = this.getPlayers.bind(this);
      this.handleChange = this.handleChange.bind(this);
      this.handleSet = this.handleSet.bind(this);
+     this.handleBet = this.handleBet.bind(this);
      this.handleReise = this.handleReise.bind(this); 
      this.handleCall = this.handleCall.bind(this);
      this.handleFold = this.handleFold.bind(this);
+     this.handleAllIn = this.handleAllIn.bind(this);
+     this.handleCheck = this.handleCheck.bind(this);
      this.start_game = this.start_game.bind(this);
      this.start_game_test = this.start_game_test.bind(this);
      this.preflop = this.preflop.bind(this);
@@ -153,10 +156,10 @@ function sleep (time) {
      this.next_activ = this.next_activ.bind(this);
      this.next_activ_new_queue = this.next_activ_new_queue.bind(this);
      this.card_dealt = this.card_dealt.bind(this);
-     this.get_action_queue_ids_player = this.get_action_queue_ids_player.bind(this);
      this.get_max_bet = this.get_max_bet.bind(this);
      this.rebuild_queue = this.rebuild_queue.bind(this);
-     this.handle_manager = this.handle_manager.bind(this);
+     this.set_activ = this.set_activ.bind(this);
+     this.reset_action = this.reset_action.bind(this);     
    }
     
    handleChange(event){
@@ -313,7 +316,7 @@ function sleep (time) {
       let p3 = new Player(4,"Jack",10,s);
       players.set(p3.id,p3);    
      }
-     {
+   /*  {
       let s = new Site({position:5,place_chips:styles.place5_chips,place_button:styles.place5_button,place_total_bet:styles.place5_total_bet});
       let p3 = new Player(5,"Harry",10,s);
       players.set(p3.id,p3);    
@@ -342,7 +345,7 @@ function sleep (time) {
       let s = new Site({position:10,place_chips:styles.place10_chips,place_button:styles.place10_button,place_total_bet:styles.place10_total_bet});  
       let p3 = new Player(10,"Oliver",10,s);
       players.set(p3.id,p3);    
-     }
+     }*/
      
      let queue = this.get_preflop_queue_ids_player(players);
     // players.get(queue[0]).set_activ(true);
@@ -359,19 +362,19 @@ function sleep (time) {
   
    }
 
-   game_circle(){
+   game_circle(is_first_bet=false,current_player_id=null){
       switch(this.state.round.current()) {
          case ROUND_PREFLOP:
-           this.preflop();
+           this.preflop(current_player_id);
            break;
          case ROUND_FLOP:
-            this.flop();
+            this.flop(is_first_bet,current_player_id);
            break;
          case ROUND_TERN:
-            this.tern();
+            this.tern(is_first_bet,current_player_id);
             break;
          case ROUND_RIVER:
-            this.river();
+            this.river(is_first_bet,current_player_id);
             break; 
          case ROUND_WIN:
             this.win();
@@ -390,26 +393,51 @@ function sleep (time) {
      return max_bet;
    }
    rebuild_queue(current_player_id){
-      let queue = this.get_action_queue_ids_player(current_player_id);
-      while( this.state.queue_players.length){
+      let queue = this.get_postflop_queue_ids_player(this.state.players).filter((id)=>{
+         let p = this.state.players.get(id);
+         if(p.action==FOLD || (p.action==ALL_IN && p.id!=current_player_id)){return false;}
+         return true;
+      });
+
+      let queue_players = [];
+      let is_find=false;
+      queue.forEach((id)=>{
+         if(is_find==true){
+            queue_players.push(id);
+         }
+         if(!is_find && id==current_player_id ){
+            is_find=true;
+         }
+      });
+     
+      is_find=true;
+      queue.forEach((id)=>{
+         if(id==current_player_id ){
+            is_find=false;
+         }
+         if(is_find){
+            queue_players.push(id);
+         }
+      });
+     if(current_player_id>0) console.log('queue_players=',queue_players)
+      // rebuild
+      while(this.state.queue_players.length){
          this.state.queue_players.pop();
       }
-      while(queue.length){
-         this.state.queue_players.push(queue.shift());
+      while(queue_players.length){
+         this.state.queue_players.push(queue_players.shift());
       }
    }
-   player_action(current_player_id){
-     if(current_player_id==null)return null;
-     let max_bet = this.get_max_bet(current_player_id);
-      
-     let obj_action = {max_bet:max_bet};
-     let get_action = this.state.players.get(current_player_id).player_action(obj_action);
-     
-     if(get_action.action == REISE || (get_action.action == ALL_IN && get_action.bet > max_bet)){
-         // REISE новая очередь
-         // ALL_IN  новая очередь если больше максимальной стовки 
-         this.rebuild_queue(current_player_id);
-     }
+
+   set_activ(){
+      this.state.players.forEach( (pl, key, map) => {
+         if (pl.id == this.state.queue_players[0]){
+            pl.set_activ(true);
+            pl.action=null;
+         }else{
+            pl.set_activ(false);
+         }
+      });
    }
    next_activ(){
       let current_player_id = null;
@@ -422,18 +450,15 @@ function sleep (time) {
       }
       
       if(current_player_id==null)return null;  
+      this.set_activ();
 
-      this.state.players.forEach( (pl, key, map) => {
-         if (pl.id == this.state.queue_players[0]){
-            pl.set_activ(true);
-         }else{
-            pl.set_activ(false);
-         }
-      });
       return current_player_id;
    }
    next_activ_new_queue(is_reset=false){
-      let queue = this.get_postflop_queue_ids_player(this.state.players);
+      let queue = this.get_postflop_queue_ids_player(this.state.players).filter((id)=>{
+         if(this.state.players.get(id).action == FOLD || this.state.players.get(id).action ==ALL_IN ) return false;
+         else return true;
+      });
       this.state.players.forEach( (pl, key, map) => {
          if (pl.id == queue[0] && !is_reset ){
             pl.set_activ(true);
@@ -453,109 +478,155 @@ function sleep (time) {
          this.state.players.forEach( (pl, key, map) => {
             if (pl.site.get_button() == SMALL_BUTTON){
                 pl.turn_down_money(this.state.cost_sb); 
+                pl.action=BET;
             }else if (pl.site.get_button() == BIG_BUTTON){
-               pl.turn_down_money(this.state.cost_bb);                    
+               pl.turn_down_money(this.state.cost_bb);
+               pl.action=BET;                    
             }
          }); 
          is_cards_dealt=true;
       }
       return is_cards_dealt;
    }
-   preflop(is_you=false){ 
-      //console.log('preflop');
+   player_action(current_player_id){
+      if(current_player_id==null)return null;
+      let max_bet = this.get_max_bet(current_player_id);
+       
+      let obj_action = {max_bet:max_bet};
+      let get_action = this.state.players.get(current_player_id).player_action(obj_action);
       
+      if(get_action.action == REISE || (get_action.action == ALL_IN && get_action.bet > max_bet)){
+          // REISE новая очередь
+          // ALL_IN  новая очередь если больше максимальной стовки 
+          this.rebuild_queue(current_player_id);
+      }
+      return get_action.action;
+    }
+   reset_action(){
+     this.state.players.forEach((pl)=>{
+         if(pl.action!=FOLD && pl.action!=ALL_IN){
+            pl.action=null;
+         }
+     });
+   }
+   preflop(current_player_id=null){ 
+      //console.log('preflop');
+      let is_first_bet = this.state.is_first_bet;
       if (!this.state.is_cards_dealt){
          this.state.players.get(this.state.queue_players[0]).set_activ(true);
          let is_cards_dealt = this.card_dealt();
+         is_first_bet=true;
          this.setState({
             pots:this.build_pot(),
             is_cards_dealt:is_cards_dealt,
+            is_first_bet:is_first_bet,
          });
       }else if(this.state.queue_players.length > 0){
-        
-         let current_player_id = this.next_activ();
-         if(current_player_id==null){console.log('not implemented');}
-
-         if(!is_you){
-          this.player_action(current_player_id);
-          
+         if(current_player_id==null){
+            current_player_id = this.next_activ();
+            if(current_player_id==null){console.log('not implemented');}
+            this.player_action(current_player_id);
          }
-
+         console.log('preflop',current_player_id);
          this.setState({
             pots:this.build_pot(),
          });
       }else{
          console.log('out preflop');
-         /*
+         this.reset_action();
          this.state.round.next();
-         let queue = this.next_activ_new_queue();
-            
+         let queue = this.next_activ_new_queue();  
          this.setState({
-            table_cards:[this.state.deck.get_card(),this.state.deck.get_card(),this.state.deck.get_card()], 
+            table_cards:[
+               this.state.deck.get_card(),
+               this.state.deck.get_card(),
+               this.state.deck.get_card()
+            ], 
+            is_first_bet:false,
             queue_players:Object.assign([], queue),
          }); 
-         */
       }
    }
-   flop(is_you=false){
+   flop(is_first_bet=false,current_player_id=null){
       console.log('flop');
       // сформировать новую очередь начиная с SB
 
       if(this.state.queue_players.length > 0){
-          let current_player_id = this.next_activ();
-
-          if(!is_you){this.player_action(current_player_id);}
-
+         // let is_first_bet=false;
+          if(current_player_id==null){
+            current_player_id = this.next_activ();
+            if(current_player_id==null){console.log('not implemented');}
+            if(this.player_action(current_player_id)!=FOLD){
+               is_first_bet=true;
+            }
+          }
+          console.log('preflop',current_player_id);
           this.setState({
+            is_first_bet:is_first_bet,
             pots:this.build_pot(),
           });
       }else{
            console.log('out flop');
+           this.reset_action();
            this.state.round.next();
            let queue = this.next_activ_new_queue();
            this.state.table_cards.push(this.state.deck.get_card());
            this.setState({
+              is_first_bet:false,
               queue_players:Object.assign([], queue),
            });
       }
    }
-   tern(is_you=false){
+   tern(is_first_bet=false,current_player_id=null){
       console.log('tern');
       if (this.state.queue_players.length > 0){
-         let current_player_id = this.next_activ();
-
-         if(!is_you){this.player_action(current_player_id);}  
+         if(current_player_id==null){
+            current_player_id = this.next_activ();
+            if(current_player_id==null){console.log('not implemented');}
+            if(this.player_action(current_player_id)!=FOLD){
+               is_first_bet=true;
+            }
+         } 
      
          this.setState({
+            is_first_bet:is_first_bet,
             pots:this.build_pot()
          });
  
       }else{
          console.log('out tern');
+         this.reset_action();
          this.state.round.next();
          let queue = this.next_activ_new_queue();         
          this.state.table_cards.push(this.state.deck.get_card());
          this.setState({
+            is_first_bet:false,
             queue_players:Object.assign([], queue)
          });
       }
    }
-   river(is_you=false){
+   river(is_first_bet=false,current_player_id=null){
       console.log('river');
       if (this.state.queue_players.length > 0){
-          let current_player_id = this.next_activ();
-
-          if(!is_you){this.player_action(current_player_id);}
+         if(current_player_id==null){
+            current_player_id = this.next_activ();
+            if(current_player_id==null){console.log('not implemented');}
+            if(this.player_action(current_player_id)!=FOLD){
+               is_first_bet=true;
+            }
+         } 
       
           this.setState({
+            is_first_bet:is_first_bet,
             pots:this.build_pot(),
           });
       }else{ 
          console.log('out river');
          this.state.round.next(); 
          let queue = this.next_activ_new_queue(true);
-                  
+         this.reset_action();
          this.setState({ 
+            is_first_bet:false,
             queue_players:Object.assign([], queue)
          });
       }
@@ -716,35 +787,7 @@ function sleep (time) {
          }
       }
    }
-   get_action_queue_ids_player(current_player_id){
-      let queue = this.get_postflop_queue_ids_player(this.state.players).filter((id)=>{
-         let p = this.state.players.get(id);
-         if(p.action==FOLD || (p.action==ALL_IN && p.id!=current_player_id)){return false;}
-         return true;
-      });
-
-      let queue_players = [];
-      let is_find=false;
-      queue.forEach((id)=>{
-         if(is_find==true){
-            queue_players.push(id);
-         }
-         if(!is_find && id==current_player_id ){
-            is_find=true;
-         }
-      });
-     
-      is_find=true;
-      queue.forEach((id)=>{
-         if(id==current_player_id ){
-            is_find=false;
-         }
-         if(is_find){
-            queue_players.push(id);
-         }
-      });
-      return queue_players;
-   }
+ 
    get_postflop_queue_ids_player(players){
       // start with sb
       // построение очереди очень не еффективно!!!
@@ -820,56 +863,104 @@ function sleep (time) {
       });
       return queue_players;
    }
+   handleBet(e){
+      this.state.players.get(YOUR_ID).turn_down_money(this.state.cost_bb);
+      this.state.players.get(YOUR_ID).action=BET;
+      this.rebuild_queue(YOUR_ID);
+      this.set_activ();
+      this.game_circle(this.state.is_first_bet,YOUR_ID);
+   }
    handleReise(e){
       let max_bet = this.get_max_bet(YOUR_ID);
       this.state.players.get(YOUR_ID).turn_down_money(max_bet*2-this.state.players.get(YOUR_ID).get_total_bet());
       this.state.players.get(YOUR_ID).action=REISE;
-      this.handle_manager();
+      this.rebuild_queue(YOUR_ID);
+      this.set_activ();
+      this.game_circle(this.state.is_first_bet,YOUR_ID);
    } 
+   handleAllIn(e){
+      let max_bet = this.get_max_bet(YOUR_ID);
+      if(this.state.players.get(YOUR_ID).money > max_bet-this.state.players.get(YOUR_ID).get_total_bet()){
+         this.state.players.get(YOUR_ID).turn_down_money( this.state.players.get(YOUR_ID).money);
+         this.rebuild_queue(YOUR_ID);
+      } else{
+         this.state.players.get(YOUR_ID).turn_down_money( this.state.players.get(YOUR_ID).money);
+         this.state.queue_players.shift();
+      }  
+      this.set_activ();
+      this.state.players.get(YOUR_ID).action=ALL_IN;
+      this.game_circle(this.state.is_first_bet,YOUR_ID);
+   }
    handleFold(e){
       this.state.players.get(YOUR_ID).action=FOLD;
-      this.handle_manager();
+      this.state.queue_players.shift();
+      this.set_activ();
+      this.game_circle(this.state.is_first_bet,YOUR_ID);
    }
    handleCall(e){ 
      let max_bet = this.get_max_bet(YOUR_ID);
-     this.state.players.get(YOUR_ID).turn_down_money(max_bet-this.state.players.get(YOUR_ID).get_total_bet());
-     this.handle_manager();
-   }
-   handle_manager(){
-     let round = this.state.round.current();
-     if(round==ROUND_PREFLOP){
-         this.preflop(true);
-     }else if(round==ROUND_FLOP){
-         this.flop(true);
-     }else if(round==ROUND_TERN){
-         this.tern(true);
-     }else if(round==ROUND_RIVER){
-         this.river(true);
+     if(max_bet-this.state.players.get(YOUR_ID).get_total_bet() >= this.state.players.get(YOUR_ID).money){
+        this.state.players.get(YOUR_ID).action=ALL_IN;
      }else{
-        console.log('WTF')
+        this.state.players.get(YOUR_ID).action=CALL;
      }
+     this.state.queue_players.shift();
+     this.set_activ();
+     this.state.players.get(YOUR_ID).turn_down_money(max_bet-this.state.players.get(YOUR_ID).get_total_bet());
+     this.game_circle(this.state.is_first_bet,YOUR_ID);
    }
+   handleCheck(e){
+      this.state.players.get(YOUR_ID).action=CHECK;
+      this.state.queue_players.shift();
+      this.set_activ();
+      this.game_circle(this.state.is_first_bet,YOUR_ID);
+   }
+   
    getControlBtn(){
       let is_player = false;
       this.state.players.forEach((p)=>{if(p.is_activ() && p.id==YOUR_ID){is_player=true}});
       
       if(!is_player){
          sleep(this.state.wait_step_game_circle).then(() => {   
-            if(this.state.start_game){ this.game_circle();}
+            if(this.state.start_game){this.game_circle();}
          });
-
          return '';
       }
-// Не все кнопки доступны в любой ситуации ставок!
+      // Не все кнопки доступны в любой ситуации ставок!
+      // когда доступно CALL либо CHECK
+      // когда доступно REISE либо ALL-IN
+
+      // reise может быть если была уже ставка
+
+      let buttons = [];
+      let max_bet = this.get_max_bet(YOUR_ID); 
+
+      if(this.state.players.get(YOUR_ID).get_total_bet()==max_bet && !this.state.is_first_bet){
+         // CHECK
+         buttons.push(<button key='button_check' className="btn btn-secondary btn-outline-dark btn-lg" type="button" onClick={(e) => this.handleCheck(e)}>CHECK</button>);
+         buttons.push(<button key='button_bet' className="btn btn-secondary btn-outline-dark btn-lg" type="button" disabled={false} onClick={(e) => this.handleBet(e)}>BET</button>);
+      }else if(this.state.players.get(YOUR_ID).money >= max_bet-this.state.players.get(YOUR_ID).get_total_bet() && this.state.is_first_bet){
+         // CALL
+         buttons.push(<button key='button_call' className="btn btn-secondary btn-outline-dark btn-lg" type="button" onClick={(e) => this.handleCall(e)}>CALL</button>);
+      } else{
+         buttons.push(<button key='button_bet' className="btn btn-secondary btn-outline-dark btn-lg" type="button" disabled={false} onClick={(e) => this.handleBet(e)}>BET</button>);
+      }
+
+      buttons.push(<button key='button_fold' className="btn btn-secondary btn-outline-dark btn-lg" type="button" onClick={(e) => this.handleFold(e)}>FOLD</button>);
+
+      if(this.state.players.get(YOUR_ID).money > (max_bet-this.state.players.get(YOUR_ID).get_total_bet())*2  && this.state.is_first_bet){
+         buttons.push(<button key='button_reise' className="btn btn-secondary btn-outline-dark btn-lg" type="button" onClick={(e) => this.handleReise(e)}>REISE</button>);
+         buttons.push(<button key='button_all_in' className="btn btn-secondary btn-outline-dark btn-lg" type="button" onClick={(e) => this.handleAllIn(e)}>ALL-IN</button>);
+      }else /*if(this.state.players.get(YOUR_ID).money <= (max_bet*2-this.state.players.get(YOUR_ID).get_total_bet()) ||  !this.state.is_first_bet)*/{
+         buttons.push(<button key='button_all_in' className="btn btn-secondary btn-outline-dark btn-lg" type="button" onClick={(e) => this.handleAllIn(e)}>ALL-IN</button>);
+      } 
 
      return  <div className={styles.control_btn}>
           <div className="col-lg-12 text-center">
             <div className="row align-items-center">
                <div className="col-xs-4 align-self-center">
                   <div className="d-grid gap-3 d-md-block" aria-label="Basic example">
-                     <button className="btn btn-secondary btn-outline-dark btn-lg" type="button" disabled={this.state.control.btn1.disabled} onClick={(e) => this.handleCall(e)}>CALL/CHECK</button>
-                     <button className="btn btn-secondary btn-outline-dark btn-lg" type="button" disabled={this.state.control.btn2.disabled} onClick={(e) => this.handleFold(e)}>FOLD</button>
-                     <button className="btn btn-secondary btn-outline-dark btn-lg" type="button" disabled={this.state.control.btn3.disabled} onClick={(e) => this.handleReise(e)}>REISE/ALL-IN</button>
+                    {buttons}
                   </div>
                </div>
             </div>
@@ -940,7 +1031,7 @@ function sleep (time) {
 
 
       return <React.Fragment> 
-                  <div className={styles.box_card+' '+win_player}> 
+                  <div className={styles.box_card/*+' '+win_player*/}> 
                     {is_card && <React.Fragment>  
                      <Image key={player.card1.key}
                         className={styles.img+' '+win_player_card1} 
@@ -991,6 +1082,7 @@ function sleep (time) {
    print_action(action){
       switch (action){
          case CALL:return "CALL";
+         case BET:return 'BET';
          case REISE:return "REISE";
          case FOLD:return "FOLD";
          case CHECK:return "CHECK";

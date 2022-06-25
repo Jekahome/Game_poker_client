@@ -53,14 +53,16 @@ export default class Player {
       return this.#_show_action;
     }
     set action(action){
+      // if(this.id == 1)console.log('set action',action);
       this.#_show_action=action;
     }
     player_action(obj_action){
+     // if(this.id == 1)console.log('Player player_action',obj_action);
        // call fold reise bet
        // call на предыдущую ставку
        let action = FOLD;
        let max_bet = obj_action.max_bet;
-       let choice = Math.round(Math.random()*3);
+       let choice = Math.round(Math.random()*1);// 3
       
       /* if(this.id == 5 || this.id == 9){
           choice=1;
@@ -71,6 +73,7 @@ export default class Player {
        }*/
       // if(this.id == 4){ choice=2;} 
      //  else {choice=0;}
+     choice=0;
 
        switch (choice){
           case 0:{
@@ -91,7 +94,7 @@ export default class Player {
           break;
           case 1:{
              // for REISE x2
-             if(this.money > (max_bet-this.get_total_bet())*2){
+            if(this.money > (max_bet-this.get_total_bet())*2){
                this.turn_down_money(max_bet*2-this.get_total_bet());
                this.action = REISE;
                return {action:this.action,bet:this.get_total_bet()};
