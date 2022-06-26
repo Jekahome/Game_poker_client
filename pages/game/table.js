@@ -159,7 +159,8 @@ function sleep (time) {
      this.get_max_bet = this.get_max_bet.bind(this);
      this.rebuild_queue = this.rebuild_queue.bind(this);
      this.set_activ = this.set_activ.bind(this);
-     this.reset_action = this.reset_action.bind(this);     
+     this.reset_action = this.reset_action.bind(this); 
+     this.delete_player = this.delete_player.bind(this);    
    }
     
    handleChange(event){
@@ -227,33 +228,33 @@ function sleep (time) {
 
       let s = new Site({position:1,place_chips:styles.place1_chips,place_button:styles.place1_button,place_total_bet:styles.place1_total_bet});
       s.set_sb();
-      let p = new Player(1,"Petr",20,s);
-      p.setHand(deck.get_card_test('Ad'),deck.get_card_test('5d'));
-      let bet = p.turn_down_money(5); 
+      let p = new Player(1,"Petr",40,s);
+      p.setHand(deck.get_card_test('4h'),deck.get_card_test('Ad'));
+      let bet = p.turn_down_money(40); 
       pot+=bet;
       players.set(p.id,p);
      {
       let s = new Site({position:2,place_chips:styles.place2_chips,place_button:styles.place2_button,place_total_bet:styles.place2_total_bet});
       s.set_bb();
-      let p = new Player(2,"Kek",20,s);
-      p.setHand(deck.get_card_test('Kd'),deck.get_card_test('3c'));
+      let p = new Player(2,"Kek",10,s);
+      p.setHand(deck.get_card_test('7s'),deck.get_card_test('6d'));
       let bet = p.turn_down_money(10); 
       pot+=bet;
       players.set(p.id,p);         
      }
      {
       let s = new Site({position:3,place_chips:styles.place3_chips,place_button:styles.place3_button,place_total_bet:styles.place3_total_bet});
-      let p = new Player(3,"Ivan",20,s);
-      p.setHand(deck.get_card_test('Qd'),deck.get_card_test('Qh'));
+      let p = new Player(3,"Ivan",10,s);
+      p.setHand(deck.get_card_test('8d'),deck.get_card_test('Jd'));
       let bet = p.turn_down_money(20); 
       pot+=bet;
       players.set(p.id,p);   
      }
      {
       let s = new Site({position:4,place_chips:styles.place4_chips,place_button:styles.place4_button,place_total_bet:styles.place4_total_bet});
-      let p = new Player(4,"Jack",20,s);
-      p.setHand(deck.get_card_test('Qs'),deck.get_card_test('Qc'));
-      let bet = p.turn_down_money(20); 
+      let p = new Player(4,"Jack",50,s);
+      p.setHand(deck.get_card_test('9s'),deck.get_card_test('2d'));
+      let bet = p.turn_down_money(50); 
       pot+=bet;
       players.set(p.id,p);   
      }
@@ -264,7 +265,7 @@ function sleep (time) {
       round.next();
       round.next();
       round.next();
-      round.next();
+      //round.next();
 
       let pots = [];
       players.forEach((e)=>{
@@ -274,11 +275,11 @@ function sleep (time) {
 
       this.setState({
          table_cards:[
-            deck.get_card_test('3s'),
-            deck.get_card_test('5c'),
-            deck.get_card_test('Ah'),
+            deck.get_card_test('6h'),
+            deck.get_card_test('8c'),
+            deck.get_card_test('10h'),
             deck.get_card_test('Kh'),
-            deck.get_card_test('10h')
+            deck.get_card_test('Jc')
          ],
          start_game:true,
          is_cards_dealt:true,
@@ -298,7 +299,7 @@ function sleep (time) {
       let pot = 0;
       let s = new Site({position:1,place_chips:styles.place1_chips,place_button:styles.place1_button,place_total_bet:styles.place1_total_bet});
       s.set_sb();
-      let p = new Player(1,"Petr",10,s);
+      let p = new Player(1,"Petr",40,s);
       players.set(p.id,p);
      
       let b = new Site({position:2,place_chips:styles.place2_chips,place_button:styles.place2_button,place_total_bet:styles.place2_total_bet});
@@ -313,7 +314,7 @@ function sleep (time) {
      {
       let s = new Site({position:4,place_chips:styles.place4_chips,place_button:styles.place4_button,place_total_bet:styles.place4_total_bet});
     
-      let p3 = new Player(4,"Jack",10,s);
+      let p3 = new Player(4,"Jack",50,s);
       players.set(p3.id,p3);    
      }
    /*  {
@@ -509,6 +510,13 @@ function sleep (time) {
          }
      });
    }
+   delete_player(){
+      this.state.players.forEach((pl)=>{
+         if(pl.money==0){
+            this.state.players.delete(pl.id);
+         }
+      })
+   }
    preflop(current_player_id=null){ 
       //console.log('preflop');
       let is_first_bet = this.state.is_first_bet;
@@ -622,18 +630,34 @@ function sleep (time) {
           });
       }else{ 
          console.log('out river');
+         
+          {  
+            //TODO: diff max bet
+            let max_bet = 0;
+            let id_max_bet = null;
+            this.state.players.forEach((p)=>{
+               if(p.get_total_bet() > max_bet){max_bet=p.get_total_bet();id_max_bet=p.id;}
+            });
+            let max_bet_second = this.get_max_bet(id_max_bet);
+            if(max_bet_second < max_bet){
+               let diff_max_bet = max_bet-max_bet_second;
+               this.state.players.get(id_max_bet).change(diff_max_bet);
+            } 
+         }
+
          this.state.round.next(); 
          let queue = this.next_activ_new_queue(true);
          this.reset_action();
          this.setState({ 
             is_first_bet:false,
+            pots:this.build_pot(),
             queue_players:Object.assign([], queue)
          });
       }
    }
    win(){
-      console.log('win');
-      if (this.state.pots[0] > 0 ){
+      console.log('win >>>',this.state.win_players,this.state.pots);
+      if (this.state.pots.length > 0 ){
             let win_players = [];
             if (this.state.win_players.length==0 && this.state.table_cards.length == 5){
                   let manager = new this.mod_wasm.Menager(this.state.pots.reduce((prev, cur) => prev + cur,0));
@@ -689,7 +713,7 @@ function sleep (time) {
               return p; 
              }).filter((p)=>p>0);
              // всех победителей по очереди показывать и добавлять pot 
-
+            
             this.setState({ 
               win_players:win_players,
               win_cards:win_cards,
@@ -698,9 +722,11 @@ function sleep (time) {
               combination_name:combination_name,
               wait_step_game_circle:6000,
             });
-      }else if(this.state.pots[0]==0){
-       /*
-         sleep(2000).then(() => {   
+      }else{
+       
+         sleep(2000).then(() => {  
+            console.log('out win');
+            this.delete_player(); 
             this.next_site_button();
             this.state.players.forEach( (pl, key, map) => {
                pl.resetHand();
@@ -722,7 +748,7 @@ function sleep (time) {
               is_cards_dealt:false 
             });          
        });
-       */
+       
       }
    }
  
@@ -1231,7 +1257,7 @@ function sleep (time) {
       return  !this.state.start_game ?  
          <Layout> 
            <div className={styles.pokertable}>
-             <button className={"btn btn-secondary btn-outline-dark btn-lg "+styles.start_game_btn} type="button" onClick={this.start_game}>Open table {this.props.count}</button>
+             <button className={"btn btn-secondary btn-outline-dark btn-lg "+styles.start_game_btn} type="button" onClick={this.start_game_test}>Open table {this.props.count}</button>
            </div>
          </Layout> : 
          <Layout>

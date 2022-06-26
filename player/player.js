@@ -128,6 +128,10 @@ export default class Player {
     get money(){
       return this.#_money;
     }
+    change(money){
+      this.#_money+=money;
+      this.#_total_bet-=money;
+    }
     turn_down_money(m){
        if (this.#_money < m){
           let ret = this.#_money;
