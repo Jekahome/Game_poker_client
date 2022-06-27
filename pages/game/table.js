@@ -238,7 +238,7 @@ function sleep (time) {
          }else if(max_bet==custom_bet+player.get_total_bet()){
             console.log('call');
             this.handleCall();
-         }else if(max_bet*2 < custom_bet+player.get_total_bet()){
+         }else if(max_bet*2 <= custom_bet+player.get_total_bet()){
             // reise 
             console.log('reise',custom_bet);
             this.handleReise(null,custom_bet);
@@ -262,7 +262,7 @@ function sleep (time) {
       let s = new Site({position:1,place_chips:styles.place1_chips,place_button:styles.place1_button,place_total_bet:styles.place1_total_bet});
       s.set_sb();
       let p = new Player(1,"Petr",40,s);
-      p.setHand(deck.get_card_test('4h'),deck.get_card_test('Ad'));
+      p.setHand(deck.get_card_test('Ah'),deck.get_card_test('Ad'));
       let bet = p.turn_down_money(40); 
       pot+=bet;
       players.set(p.id,p);
@@ -312,7 +312,7 @@ function sleep (time) {
             deck.get_card_test('8c'),
             deck.get_card_test('10h'),
             deck.get_card_test('Kh'),
-            deck.get_card_test('Jc')
+            deck.get_card_test('3c')
          ],
          start_game:true,
          is_cards_dealt:true,
@@ -762,8 +762,8 @@ function sleep (time) {
        
          sleep(2000).then(() => {  
             console.log('out win');
-            this.delete_player(); 
             this.next_site_button();
+            this.delete_player(); 
             this.state.players.forEach( (pl, key, map) => {
                pl.resetHand();
                pl.reset_total_bet();
@@ -826,11 +826,29 @@ function sleep (time) {
             pl.site.reset_button();
          }
       });
+      let is_find_sb = false;
+      let is_set_sb=false;
       this.state.players.forEach( (pl, key, map) => {
-         if (pl.site.get_button() === BIG_BUTTON ){
+         if(pl.site.get_button() === BIG_BUTTON ){
+            is_find_sb=true;
+          
+         }
+         if(is_find_sb && pl.money > 0){
+            is_set_sb=true;
             pl.site.set_sb();
          }
       });
+      if(!is_set_sb){
+         this.state.players.forEach( (pl, key, map) => {
+            if(is_find_sb && !is_set_sb && pl.money > 0){
+               is_set_sb=true;
+               pl.site.set_sb();
+            }
+         });
+      }else{
+         console.log('WTF');
+      }
+
       let first_players = false;
       let is_change = false;
       this.state.players.forEach( (pl, key, map) => {
