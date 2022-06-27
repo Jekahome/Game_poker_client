@@ -127,7 +127,7 @@ function sleep (time) {
         id_win_player:null,
         win_player_index:null,
         combination_name:'',
-        wait_step_game_circle:5000,
+        wait_step_game_circle:2000,
         is_cards_dealt:false,
         is_first_bet:false,
      };
@@ -692,27 +692,30 @@ function sleep (time) {
       }
    }
    win(){
-      console.log('win >>>',this.state.win_players,this.state.pots);
+      console.log('win');
       if (this.state.pots.length > 0 ){
             let win_players = [];
             if (this.state.win_players.length==0 && this.state.table_cards.length == 5){
                   let manager = new this.mod_wasm.Menager(this.state.pots.reduce((prev, cur) => prev + cur,0));
                   this.state.players.forEach( (pl, key, map) => {
-                     let c1 = new this.mod_wasm.Card( pl.card1.nom, pl.card1.suit);
-                     let c2 = new this.mod_wasm.Card( pl.card2.nom, pl.card2.suit);
-                     let _c3 = this.state.table_cards[0];
-                     let c3 = new this.mod_wasm.Card( _c3.nom, _c3.suit);
-                     let _c4 = this.state.table_cards[1];
-                     let c4 = new this.mod_wasm.Card( _c4.nom, _c4.suit);
-                     let _c5 = this.state.table_cards[2];
-                     let c5 = new this.mod_wasm.Card( _c5.nom, _c5.suit);
-                     let _c6 = this.state.table_cards[3];
-                     let c6 = new this.mod_wasm.Card( _c6.nom, _c6.suit);
-                     let _c7 = this.state.table_cards[4];
-                     let c7 = new this.mod_wasm.Card( _c7.nom, _c7.suit);
-                     console.log(c1.show_card(),c2.show_card(),c3.show_card(),c4.show_card(),c5.show_card(),c6.show_card(),c7.show_card());
-                     let hand = new this.mod_wasm.Hand(String(pl.id),pl.get_total_bet(),c1,c2,c3,c4,c5,c6,c7);
-                     manager.add_hand(hand);
+                     if(pl.action!=FOLD){
+                           let c1 = new this.mod_wasm.Card( pl.card1.nom, pl.card1.suit);
+                           let c2 = new this.mod_wasm.Card( pl.card2.nom, pl.card2.suit);
+                           let _c3 = this.state.table_cards[0];
+                           let c3 = new this.mod_wasm.Card( _c3.nom, _c3.suit);
+                           let _c4 = this.state.table_cards[1];
+                           let c4 = new this.mod_wasm.Card( _c4.nom, _c4.suit);
+                           let _c5 = this.state.table_cards[2];
+                           let c5 = new this.mod_wasm.Card( _c5.nom, _c5.suit);
+                           let _c6 = this.state.table_cards[3];
+                           let c6 = new this.mod_wasm.Card( _c6.nom, _c6.suit);
+                           let _c7 = this.state.table_cards[4];
+                           let c7 = new this.mod_wasm.Card( _c7.nom, _c7.suit);
+                           console.log(c1.show_card(),c2.show_card(),c3.show_card(),c4.show_card(),c5.show_card(),c6.show_card(),c7.show_card());
+                           let hand = new this.mod_wasm.Hand(String(pl.id),pl.get_total_bet(),c1,c2,c3,c4,c5,c6,c7);
+                           manager.add_hand(hand);
+                     }
+
                   });
 
                   let wins = manager.calculate();
@@ -821,28 +824,29 @@ function sleep (time) {
   }
  
    next_site_button(){
+      console.log('next_site_button')
       this.state.players.forEach( (pl, key, map) => {
          if (pl.site.get_button() !== BIG_BUTTON ){
             pl.site.reset_button();
          }
       });
       let is_find_sb = false;
-      let is_set_sb=false;
+      let is_set_sb = false;
       this.state.players.forEach( (pl, key, map) => {
          if(pl.site.get_button() === BIG_BUTTON ){
             is_find_sb=true;
           
          }
-         if(is_find_sb && pl.money > 0){
+         if(is_find_sb && !is_set_sb && pl.money > 0){
             is_set_sb=true;
-            pl.site.set_sb();
+            pl.site.set_sb();console.log('SET SB')
          }
       });
       if(!is_set_sb){
          this.state.players.forEach( (pl, key, map) => {
             if(is_find_sb && !is_set_sb && pl.money > 0){
                is_set_sb=true;
-               pl.site.set_sb();
+               pl.site.set_sb();console.log('SET SB')
             }
          });
       }else{
@@ -863,9 +867,24 @@ function sleep (time) {
       if (!is_change){
          for(let player of this.state.players.values()) {
                player.site.set_bb();
-               return;
+               break;
          }
       }
+      
+      //--------------------------
+     /* this.state.players.forEach( (pl, key, map) => {
+        
+         if ( pl.site.get_button() === SMALL_BUTTON ){
+           console.log('SB',pl.name)
+         }
+         if ( pl.site.get_button() === BIG_BUTTON ){
+            console.log('BB',pl.name)
+         }
+
+      });*/
+
+      //--------------------------
+
    }
  
    get_postflop_queue_ids_player(players){
