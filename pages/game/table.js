@@ -97,9 +97,12 @@ function sleep (time) {
             }
          */
 
+              
        }).bind(this)();
+     
    }
 
+   
   // static async getInitialProps(ctx) {return {value:0} }
 
    constructor(props) {
@@ -108,7 +111,7 @@ function sleep (time) {
      
      this.state={
         control:{btn1:{disabled:""},btn2:{disabled:""},btn3:{disabled:"disabled"}},
-        value_range:10,
+        value_custom_bet:0,
         max_range:100,
         start_game:false,
         round:{},
@@ -130,8 +133,8 @@ function sleep (time) {
      };
      this.getControlBtn = this.getControlBtn.bind(this);
      this.getPlayers = this.getPlayers.bind(this);
-     this.handleChange = this.handleChange.bind(this);
-     this.handleSet = this.handleSet.bind(this);
+     this.handleCustomBet = this.handleCustomBet.bind(this);
+     this.handleChangeCustomBet = this.handleChangeCustomBet.bind(this);
      this.handleBet = this.handleBet.bind(this);
      this.handleReise = this.handleReise.bind(this); 
      this.handleCall = this.handleCall.bind(this);
@@ -160,20 +163,23 @@ function sleep (time) {
      this.rebuild_queue = this.rebuild_queue.bind(this);
      this.set_activ = this.set_activ.bind(this);
      this.reset_action = this.reset_action.bind(this); 
-     this.delete_player = this.delete_player.bind(this);    
+     this.delete_player = this.delete_player.bind(this);
+      
    }
     
-   handleChange(event){
+   handleChangeCustomBet(event){
      // console.log(event.target.value);
-     // this.setState({value_range: event.target.value});
+     // this.setState({value_custom_bet: event.target.value});
      event.preventDefault();
-     this.value_range = event.target.value;
+     this.value_custom_bet = event.target.value;
      
-     document.getElementById('button-addon2').innerText=this.value_range;
-     document.getElementById('button-addon2').setAttribute('data-value', this.value_range);
-     document.getElementById('customRange1').setAttribute('value', this.value_range);
+     document.getElementById('button-addon2').innerText=this.value_custom_bet;
+     document.getElementById('button-addon2').setAttribute('data-value', this.value_custom_bet);
+    // document.getElementById('customRange1').removeAttribute('value');
+     document.getElementById('customRange1').setAttribute('value', this.value_custom_bet);
 
      //------------------
+     /*
      // TODO: пример расчета победителя по событию        
          let manager = new this.mod_wasm.Menager(12345);
          this.state.players.forEach( (pl, key, map) => {
@@ -210,14 +216,41 @@ function sleep (time) {
                'cards=',res[i].show_cards());// добавить корректное отображение
            // for (let c of res[i].get_cards()){ let card = c.get(); }
          }
-         
+         */
          //---------------
    }
-
-   handleSet(event){
+  
+   handleCustomBet(event){
       event.preventDefault();
       console.log('обновился pot');
-     /* console.log(event.target.dataset.value);
+      let custom_bet = Number(event.target.dataset.value);
+      if(custom_bet>0){
+         let player = this.state.players.get(YOUR_ID);
+         let max_bet = this.get_max_bet(YOUR_ID);
+         // bet or reise or all-in
+         if(custom_bet==player.money){
+            console.log('all-in');
+            this.handleAllIn();
+         }else if(!this.state.is_first_bet){
+            // bet 
+            console.log('bet');
+            this.handleBet(null,custom_bet);// но с моей ставкой 
+         }else if(max_bet==custom_bet+player.get_total_bet()){
+            console.log('call');
+            this.handleCall();
+         }else if(max_bet*2 < custom_bet+player.get_total_bet()){
+            // reise 
+            console.log('reise',custom_bet);
+            this.handleReise(null,custom_bet);
+         }else{
+            console.error(custom_bet,'it is forbidden to bet less');
+         }
+
+      }else{
+         console.error('WTF');
+      }
+      return;
+      /* console.log(event.target.dataset.value);
       this.setState({pot: this.state.pot+Number(event.target.dataset.value)});*/
    }
    start_game_test(event){
@@ -564,7 +597,8 @@ function sleep (time) {
           if(current_player_id==null){
             current_player_id = this.next_activ();
             if(current_player_id==null){console.log('not implemented');}
-            if(this.player_action(current_player_id)!=FOLD){
+            let res_action = this.player_action(current_player_id);
+            if(res_action!=FOLD && res_action!=CHECK){
                is_first_bet=true;
             }
           }
@@ -591,7 +625,8 @@ function sleep (time) {
          if(current_player_id==null){
             current_player_id = this.next_activ();
             if(current_player_id==null){console.log('not implemented');}
-            if(this.player_action(current_player_id)!=FOLD){
+            let res_action = this.player_action(current_player_id);
+            if(res_action!=FOLD && res_action!=CHECK){
                is_first_bet=true;
             }
          } 
@@ -619,7 +654,8 @@ function sleep (time) {
          if(current_player_id==null){
             current_player_id = this.next_activ();
             if(current_player_id==null){console.log('not implemented');}
-            if(this.player_action(current_player_id)!=FOLD){
+            let res_action = this.player_action(current_player_id);
+            if(res_action!=FOLD && res_action!=CHECK){
                is_first_bet=true;
             }
          } 
@@ -889,39 +925,50 @@ function sleep (time) {
       });
       return queue_players;
    }
-   handleBet(e){
-      this.state.players.get(YOUR_ID).turn_down_money(this.state.cost_bb);
+   handleBet(e,custom_bet=null){
+      if(custom_bet!=null){
+         this.state.players.get(YOUR_ID).turn_down_money(custom_bet);
+      }else{
+         this.state.players.get(YOUR_ID).turn_down_money(this.state.cost_bb);
+      }
+      
       this.state.players.get(YOUR_ID).action=BET;
       this.rebuild_queue(YOUR_ID);
       this.set_activ();
-      this.game_circle(this.state.is_first_bet,YOUR_ID);
+      this.game_circle(true,YOUR_ID);
    }
-   handleReise(e){
+   handleReise(e,custom_bet=null){
       let max_bet = this.get_max_bet(YOUR_ID);
-      this.state.players.get(YOUR_ID).turn_down_money(max_bet*2-this.state.players.get(YOUR_ID).get_total_bet());
+      if(custom_bet!=null){
+         this.state.players.get(YOUR_ID).turn_down_money(custom_bet);
+      }else{
+         this.state.players.get(YOUR_ID).turn_down_money(max_bet*2-this.state.players.get(YOUR_ID).get_total_bet());
+      }
       this.state.players.get(YOUR_ID).action=REISE;
       this.rebuild_queue(YOUR_ID);
       this.set_activ();
-      this.game_circle(this.state.is_first_bet,YOUR_ID);
+      this.game_circle(true,YOUR_ID);
    } 
    handleAllIn(e){
       let max_bet = this.get_max_bet(YOUR_ID);
+      let is_first_bet = false;
       if(this.state.players.get(YOUR_ID).money > max_bet-this.state.players.get(YOUR_ID).get_total_bet()){
          this.state.players.get(YOUR_ID).turn_down_money( this.state.players.get(YOUR_ID).money);
          this.rebuild_queue(YOUR_ID);
+         is_first_bet=true;
       } else{
          this.state.players.get(YOUR_ID).turn_down_money( this.state.players.get(YOUR_ID).money);
          this.state.queue_players.shift();
       }  
       this.set_activ();
       this.state.players.get(YOUR_ID).action=ALL_IN;
-      this.game_circle(this.state.is_first_bet,YOUR_ID);
+      this.game_circle(is_first_bet,YOUR_ID);
    }
    handleFold(e){
       this.state.players.get(YOUR_ID).action=FOLD;
       this.state.queue_players.shift();
       this.set_activ();
-      this.game_circle(this.state.is_first_bet,YOUR_ID);
+      this.game_circle(false,YOUR_ID);
    }
    handleCall(e){ 
      let max_bet = this.get_max_bet(YOUR_ID);
@@ -933,13 +980,13 @@ function sleep (time) {
      this.state.queue_players.shift();
      this.set_activ();
      this.state.players.get(YOUR_ID).turn_down_money(max_bet-this.state.players.get(YOUR_ID).get_total_bet());
-     this.game_circle(this.state.is_first_bet,YOUR_ID);
+     this.game_circle(false,YOUR_ID);
    }
    handleCheck(e){
       this.state.players.get(YOUR_ID).action=CHECK;
       this.state.queue_players.shift();
       this.set_activ();
-      this.game_circle(this.state.is_first_bet,YOUR_ID);
+      this.game_circle(false,YOUR_ID);
    }
    
    getControlBtn(){
@@ -960,12 +1007,13 @@ function sleep (time) {
 
       let buttons = [];
       let max_bet = this.get_max_bet(YOUR_ID); 
+      let player = this.state.players.get(YOUR_ID);
 
-      if(this.state.players.get(YOUR_ID).get_total_bet()==max_bet && !this.state.is_first_bet){
+      if(player.get_total_bet()==max_bet && !this.state.is_first_bet){
          // CHECK
          buttons.push(<button key='button_check' className="btn btn-secondary btn-outline-dark btn-lg" type="button" onClick={(e) => this.handleCheck(e)}>CHECK</button>);
          buttons.push(<button key='button_bet' className="btn btn-secondary btn-outline-dark btn-lg" type="button" disabled={false} onClick={(e) => this.handleBet(e)}>BET</button>);
-      }else if(this.state.players.get(YOUR_ID).money >= max_bet-this.state.players.get(YOUR_ID).get_total_bet() && this.state.is_first_bet){
+      }else if(player.money >= max_bet-player.get_total_bet() && this.state.is_first_bet){
          // CALL
          buttons.push(<button key='button_call' className="btn btn-secondary btn-outline-dark btn-lg" type="button" onClick={(e) => this.handleCall(e)}>CALL</button>);
       } else{
@@ -974,12 +1022,21 @@ function sleep (time) {
 
       buttons.push(<button key='button_fold' className="btn btn-secondary btn-outline-dark btn-lg" type="button" onClick={(e) => this.handleFold(e)}>FOLD</button>);
 
-      if(this.state.players.get(YOUR_ID).money > (max_bet-this.state.players.get(YOUR_ID).get_total_bet())*2  && this.state.is_first_bet){
+      if(this.state.players.get(YOUR_ID).money > (max_bet-player.get_total_bet())*2  && this.state.is_first_bet){
          buttons.push(<button key='button_reise' className="btn btn-secondary btn-outline-dark btn-lg" type="button" onClick={(e) => this.handleReise(e)}>REISE</button>);
          buttons.push(<button key='button_all_in' className="btn btn-secondary btn-outline-dark btn-lg" type="button" onClick={(e) => this.handleAllIn(e)}>ALL-IN</button>);
       }else /*if(this.state.players.get(YOUR_ID).money <= (max_bet*2-this.state.players.get(YOUR_ID).get_total_bet()) ||  !this.state.is_first_bet)*/{
          buttons.push(<button key='button_all_in' className="btn btn-secondary btn-outline-dark btn-lg" type="button" onClick={(e) => this.handleAllIn(e)}>ALL-IN</button>);
       } 
+      this.value_custom_bet = max_bet>0?max_bet:this.state.cost_bb;
+      let min_value = Number(this.value_custom_bet)-player.get_total_bet();
+      this.value_custom_bet = min_value>this.value_custom_bet?min_value:this.value_custom_bet;
+      let step = this.state.cost_bb>min_value?min_value:this.state.cost_bb;
+
+      sleep(400).then(() => {   
+         document.getElementById('customRange1').setAttribute('value', this.value_custom_bet);
+      });
+    
 
      return  <div className={styles.control_btn}>
           <div className="col-lg-12 text-center">
@@ -994,9 +1051,9 @@ function sleep (time) {
          <div className="row justify-content-md-center">
             <div className="col-3">
                <div className="input-group mb-3">
-               <input className={'form-control'} type="range" min="0" max={this.state.max_range} step="1" id="customRange1" aria-describedby="button-addon2" onChange={(e) => this.handleChange(e)}></input>
-               <button className="btn btn-outline-secondary gap-2 col-3 mx-auto" type="button" id="button-addon2" data-value={this.value_range} onClick={(e) => this.handleSet(e)}>
-                  {this.value_range}
+               <input className={'form-control'} type="range"  min={min_value} max={player.money} step={step} id="customRange1" aria-describedby="button-addon2" onChange={(e) => this.handleChangeCustomBet(e)}></input>
+               <button className="btn btn-outline-secondary gap-2 col-3 mx-auto" type="button" id="button-addon2" data-value={this.value_custom_bet}  onClick={(e) => {if(Number(this.value_custom_bet)>0)this.handleCustomBet(e);}}>
+                  {this.value_custom_bet}
                </button>
                </div>
             </div>
@@ -1257,7 +1314,7 @@ function sleep (time) {
       return  !this.state.start_game ?  
          <Layout> 
            <div className={styles.pokertable}>
-             <button className={"btn btn-secondary btn-outline-dark btn-lg "+styles.start_game_btn} type="button" onClick={this.start_game_test}>Open table {this.props.count}</button>
+             <button className={"btn btn-secondary btn-outline-dark btn-lg "+styles.start_game_btn} type="button" onClick={this.start_game}>Open table {this.props.count}</button>
            </div>
          </Layout> : 
          <Layout>

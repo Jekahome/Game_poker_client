@@ -79,6 +79,7 @@ export default class Player {
           case 0:{
             // for CALL / CHECK
             if(this.get_total_bet()==max_bet){
+               console.log(this.get_total_bet(),'==',max_bet);
                this.action = CHECK;
                return {action:this.action,bet:this.get_total_bet()};
             }else if(this.money > max_bet-this.get_total_bet()){
