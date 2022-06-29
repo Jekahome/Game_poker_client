@@ -15,16 +15,21 @@ https://create-react-app.dev/docs/adding-images-fonts-and-files/
 ### NextJs
 
 https://nextjs.org/docs/api-reference/next/image
+
 https://nextjs.org/learn/foundations/from-react-to-nextjs/getting-started-with-nextjs
+
 https://nextjs.org/learn/basics/create-nextjs-app/setup
+
 https://github.com/vercel/next.js/tree/canary/examples/api-routes-rest/pages/api
 
 https://ru.reactjs.org/docs/introducing-jsx.html
+
 https://ru.reactjs.org/docs/add-react-to-a-website.html
 
 ### Audio API JS
 
 https://lenguajejs.com/javascript/multimedia/api-multimedia-nativa/
+
 https://zvukipro.com/1917-zvuki-igry-v-poker.html
 
 
@@ -36,9 +41,13 @@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects
 ### WASM
 
 https://rustwasm.github.io/docs/wasm-pack/introduction.html
+
 https://rustwasm.github.io/wasm-bindgen/examples/fetch.html
+
 https://github.com/ignacio-gc/wasm-gol-next
+
 https://rustwasm.github.io/docs/book/game-of-life/setup.html
+
 https://github.com/vercel/next.js/blob/canary/examples/with-webassembly/pages/index.js
 
 https://ru.reactjs.org/docs/context.html
@@ -46,13 +55,17 @@ https://ru.reactjs.org/docs/context.html
 ### Go to typescript:
 
 https://nextjs.org/docs/basic-features/typescript#pages
+
 https://ru.reactjs.org/docs/static-type-checking.html#configuring-the-typescript-compiler
 
 ### DB:
 
 https://dev-gang.ru/article/naczalo-raboty-s-postgres-v-vashem-prilozhenii-react-olh4g437dj/
+
 https://docs.sequelizejs.com/docs/v7/getting-started/
+
 https://qna.habr.com/q/418785
+
 https://webformyself.com/top-5-vstroennyx-baz-dannyx-dlya-prilozhenij-javascript/
 
 ### WASM library
