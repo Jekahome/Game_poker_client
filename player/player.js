@@ -10,7 +10,6 @@ const FOLD = 3;
 const ALL_IN = 4;
 const CHECK = 5;
 
-
 export default class Player {
     #_id;
     #_name; 
@@ -57,25 +56,15 @@ export default class Player {
       this.#_show_action=action;
     }
     player_action(obj_action){
-     // if(this.id == 1)console.log('Player player_action',obj_action);
-       // call fold reise bet
-       // call на предыдущую ставку
+       // TODO: Replace stupid logic
+       
        let action = FOLD;
        let max_bet = obj_action.max_bet;
        let choice = Math.round(Math.random()*1);// 3
       
-      /* if(this.id == 5 || this.id == 9){
-          choice=1;
-       }else if(this.id==7 || this.id == 2){
-          choice=3;
-       }else{
-          choice=0;
-       }*/
-      // if(this.id == 4){ choice=2;} 
-     //  else {choice=0;}
-     choice=3;
+        choice=0;
 
-       switch (choice){
+        switch (choice){
           case 0:{
             // for CALL / CHECK
             if(this.get_total_bet()==max_bet){
@@ -121,7 +110,6 @@ export default class Player {
           default:
           console.log('WTF');
        }
-
        
        return null;
     }

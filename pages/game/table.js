@@ -12,21 +12,8 @@ import profilePic from '../../public/images/q/2h.png'
 import useSWR from 'swr'
 import axios from 'axios'
 
-
 // Rout: /game/table
 
-// ВАЖНО при вызове SetState вызывается функция render() заново, поэтому в ней должны быть статические данные!!!
-
-/*const fetcher = (...args) => fetch(...args).then((res) => res.json())
-//const fetcher = url => axios.get(url).then(res => res.data)
- async function Getdata(){
-   const { message, error } = await useSWR('/api/user', fetcher)
-  return (
-   <div>
-     <h1>{message}</h1>
-   </div>
- )
-}*/
 const YOUR_ID = 1;
 
 const CALL = 0;
@@ -47,65 +34,45 @@ const SMALL_BUTTON = 0;
 const BIG_BUTTON = 1;
 const KEY_ROUND_SINGL = true; 
 
+/*const fetcher = (...args) => fetch(...args).then((res) => res.json())
+//const fetcher = url => axios.get(url).then(res => res.data)
+ async function Getdata(){
+   const { message, error } = await useSWR('/api/user', fetcher)
+  return (
+   <div>
+     <h1>{message}</h1>
+   </div>
+ )
+}*/
+
 function sleep (time) {
    return new Promise((resolve) => setTimeout(resolve, time));
- }
+}
 
-  var c = 0;
-  export async function getServerSideProps(ctx){ 
-     // JSON.parse(JSON.stringify(result))  
-     c++;
-     //console.log('render server',c)
-     return{ props:{count:c}};
-   }
+var c = 0;
+export async function getServerSideProps(ctx){ 
+   // JSON.parse(JSON.stringify(result))  
+   c++;
+   //console.log('render server',c)
+   return{ props:{count:c}};
+}
   /*export async function getStaticProps(context) {
       c++;
       return {
         props: {count:c}, // will be passed to the page component as props
       }
  }*/
-    
- export default class Table extends React.Component {
+ // static async getInitialProps(ctx) {return {value:0} }   
+
+export default class Table extends React.Component {
    static count_render=0;
-   static count_didmount=0;
-   componentDidMount() {//вызывается сразу после монтирования компонента (вставки в дерево) до render()
-      Table.count_didmount++;
-      console.log("componentDidMount",Table.count_didmount);
-      // после того, как компонент отрендерился в DOM 
-      (async () => {  
-         // Dynamically load
-         this.mod_wasm = (await import('../../pkg/poker_hands'))
-         /*
-            // Used
-            let c1 = new this.mod_wasm.Card(1,100);
-            let c2 = new this.mod_wasm.Card(2,100);
-            let c3 = new this.mod_wasm.Card(4,100);
-            let c4 = new this.mod_wasm.Card(8,100);
-            let c5 = new this.mod_wasm.Card(16,100);
-            let c6 = new this.mod_wasm.Card(2048,10);
-            let c7 = new this.mod_wasm.Card(4096,10);
-            let hand = new this.mod_wasm.Hand("flash1",c1,c2,c3,c4,c5,c6,c7);
-         
-            let manager = new this.mod_wasm.Menager();
-            manager.add_hand(hand);
-            let res = manager.calculate_wasm();
-            for(var i=0; i<res.length; i++){
-               console.log(res[i].key_range_group,res[i].combination);
-               for (let c of res[i].get_cards()){
-                  let card = c.get();
-                  console.log("Card:",card.n,card.m);
-               }
-            }
-         */
-
-              
-       }).bind(this)();
-     
-   }
-
    
-  // static async getInitialProps(ctx) {return {value:0} }
-
+   componentDidMount() {
+      (async () => {  
+         this.mod_wasm = (await import('../../pkg/poker_hands'))
+       }).bind(this)();
+   }
+ 
    constructor(props) {
      super(props);
      console.log("constructor");
@@ -175,49 +142,7 @@ function sleep (time) {
      
      document.getElementById('button-addon2').innerText=this.value_custom_bet;
      document.getElementById('button-addon2').setAttribute('data-value', this.value_custom_bet);
-    // document.getElementById('customRange1').removeAttribute('value');
      document.getElementById('customRange1').setAttribute('value', this.value_custom_bet);
-
-     //------------------
-     /*
-     // TODO: пример расчета победителя по событию        
-         let manager = new this.mod_wasm.Menager(12345);
-         this.state.players.forEach( (pl, key, map) => {
-              
-             let c1 = new this.mod_wasm.Card( pl.card1.nom, pl.card1.suit);
-             let c2 = new this.mod_wasm.Card( pl.card2.nom, pl.card2.suit);
-
-             let _c3 = this.state.table_cards[0];
-             let c3 = new this.mod_wasm.Card( _c3.nom, _c3.suit);
-
-             let _c4 = this.state.table_cards[1];
-             let c4 = new this.mod_wasm.Card( _c4.nom, _c4.suit);
-
-             let _c5 = this.state.table_cards[2];
-             let c5 = new this.mod_wasm.Card( _c5.nom, _c5.suit);
-
-             let _c6 = this.state.table_cards[3];
-             let c6 = new this.mod_wasm.Card( _c6.nom, _c6.suit);
-
-             let _c7 = this.state.table_cards[4];
-             let c7 = new this.mod_wasm.Card( _c7.nom, _c7.suit);
-            console.log(c1.show_card(),c2.show_card(),c3.show_card(),c4.show_card(),c5.show_card(),c6.show_card(),c7.show_card());
-             let hand = new this.mod_wasm.Hand(String(pl.name),c1,c2,c3,c4,c5,c6,c7);
-            
-            // console.log("Send hand=",hand.show_hand());
-             manager.add_hand(hand);
-        });
-         let res = manager.calculate_wasm();
-         for(var i=0; i<res.length; i++){
-            console.log(
-               'key_hand=',res[i].get_key_hand(),
-               'key_range_group=',res[i].key_range_group,
-               'combination=',res[i].show_combination(),
-               'cards=',res[i].show_cards());// добавить корректное отображение
-           // for (let c of res[i].get_cards()){ let card = c.get(); }
-         }
-         */
-         //---------------
    }
   
    handleCustomBet(event){
@@ -226,32 +151,27 @@ function sleep (time) {
       if(custom_bet>0){
          let player = this.state.players.get(YOUR_ID);
          let max_bet = this.get_max_bet(YOUR_ID);
-         // bet or reise or all-in
          if(custom_bet==player.money){
            // console.log('all-in');
             this.handleAllIn();
          }else if(!this.state.is_first_bet){
             // bet 
-            //console.log('bet');
-            this.handleBet(null,custom_bet);// но с моей ставкой 
+            this.handleBet(null,custom_bet); 
          }else if(max_bet==custom_bet+player.get_total_bet()){
             //console.log('call');
             this.handleCall();
          }else if(max_bet*2 <= custom_bet+player.get_total_bet()){
             // reise 
-            //console.log('reise',custom_bet);
             this.handleReise(null,custom_bet);
          }else{
             console.error(custom_bet,'it is forbidden to bet less');
          }
-
       }else{
          console.error('WTF');
       }
       return;
-      /* console.log(event.target.dataset.value);
-      this.setState({pot: this.state.pot+Number(event.target.dataset.value)});*/
    }
+
    start_game_test(event){
 
       let deck = new Deck();
@@ -323,6 +243,7 @@ function sleep (time) {
       }); 
 
    }
+
    start_game(event){
 
       let deck = new Deck();
@@ -388,7 +309,7 @@ function sleep (time) {
          pots:[pot],
          players:new Map(players),   
          queue_players:queue,
-         table_cards:[],//Object.assign([], table_cards),
+         table_cards:[],
          deck:deck,
          round:new Round()
       }); 
@@ -429,6 +350,7 @@ function sleep (time) {
      });
      return max_bet;
    }
+
    rebuild_queue(current_player_id){
       let queue = this.get_postflop_queue_ids_player(this.state.players).filter((id)=>{
          let p = this.state.players.get(id);
@@ -476,6 +398,7 @@ function sleep (time) {
          }
       });
    }
+
    next_activ(){
       let current_player_id = null;
       while(current_player_id==null && this.state.queue_players.length > 0 ){
@@ -491,6 +414,7 @@ function sleep (time) {
 
       return current_player_id;
    }
+
    next_activ_new_queue(is_reset=false){
       let queue = this.get_postflop_queue_ids_player(this.state.players).filter((id)=>{
          if(this.state.players.get(id).action == FOLD || this.state.players.get(id).action ==ALL_IN ) return false;
@@ -523,6 +447,7 @@ function sleep (time) {
          this.sound.play( '/sound/fold.mp3',0,1,0.2); 
       }
    }
+
    player_action(current_player_id){
       if(current_player_id==null)return null;
       let max_bet = this.get_max_bet(current_player_id);
@@ -531,12 +456,11 @@ function sleep (time) {
       let get_action = this.state.players.get(current_player_id).player_action(obj_action);
       
       if(get_action.action == REISE || (get_action.action == ALL_IN && get_action.bet > max_bet)){
-          // REISE новая очередь
-          // ALL_IN  новая очередь если больше максимальной стовки 
           this.rebuild_queue(current_player_id);
       }
       return get_action.action;
     }
+
    reset_action(){
      this.state.players.forEach((pl)=>{
          if(pl.action!=FOLD && pl.action!=ALL_IN){
@@ -544,6 +468,7 @@ function sleep (time) {
          }
      });
    }
+
    delete_player(){
       this.state.players.forEach((pl)=>{
          if(pl.money==0){
@@ -553,27 +478,6 @@ function sleep (time) {
    }
 
    card_dealt(current_player_id=null){
-      /*
-      let is_cards_dealt = this.state.is_cards_dealt;
-      if (!this.state.is_cards_dealt){
-         let queue = this.get_postflop_queue_ids_player(this.state.players);
-         for (let i =0;i<queue.length;i++){
-            this.state.players.get(queue[i]).setHand(this.state.deck.get_card(),this.state.deck.get_card());
-         }
-         this.state.players.forEach( (pl, key, map) => {
-            if (pl.site.get_button() == SMALL_BUTTON){
-                pl.turn_down_money(this.state.cost_sb); 
-                pl.action=BET;
-            }else if (pl.site.get_button() == BIG_BUTTON){
-               pl.turn_down_money(this.state.cost_bb);
-               pl.action=BET;                    
-            }
-         }); 
-         is_cards_dealt=true;
-         this.sound.play( '/sound/zzz_ard_deal04.mp3') 
-      }
-      return is_cards_dealt;
-*/
       if(this.state.queue_players.length > 0){
          let id = this.state.queue_players[0]; 
          this.sound.play( '/sound/full_table_deal.mp3'); 
@@ -583,15 +487,12 @@ function sleep (time) {
             this.state.players.get(id).card2=this.state.deck.get_card();
             this.state.queue_players.shift();
          }
-       
          this.setState({
             wait_step_game_circle:550,
             queue_players:Object.assign([], this.state.queue_players),
          });
-
       }else{
            this.sound.pause();
-
            this.state.players.forEach( (pl, key, map) => {
                if (pl.site.get_button() == SMALL_BUTTON){
                   pl.turn_down_money(this.state.cost_sb); 
@@ -603,7 +504,6 @@ function sleep (time) {
                   pl.action=BET;                    
                }
             }); 
-
            this.reset_action();
            this.state.round.next();
            let queue = this.get_preflop_queue_ids_player(this.state.players);
@@ -619,17 +519,6 @@ function sleep (time) {
 
    preflop(current_player_id=null,action=null){ 
       //console.log('preflop');
-    /*  let is_first_bet = this.state.is_first_bet;
-      if (!this.state.is_cards_dealt){
-         this.state.players.get(this.state.queue_players[0]).set_activ(true);
-         let is_cards_dealt = this.card_dealt();
-         is_first_bet=true;
-         this.setState({
-            pots:this.build_pot(),
-            is_cards_dealt:is_cards_dealt,
-            is_first_bet:is_first_bet,
-         });
-      }else*/ 
       if(this.state.queue_players.length > 0){
          if(current_player_id==null){
             current_player_id = this.next_activ();
@@ -658,12 +547,11 @@ function sleep (time) {
          
       }
    }
+
    flop(is_first_bet=false,current_player_id=null,action=null){
       //console.log('flop');
-      // сформировать новую очередь начиная с SB
-
+      // start with SB
       if(this.state.queue_players.length > 0){
-          
           if(current_player_id==null){
             current_player_id = this.next_activ();
             if(current_player_id==null){console.log('not implemented');}
@@ -673,7 +561,6 @@ function sleep (time) {
             }
           }
           this.action_sound(action);
-         // console.log('flop',current_player_id);
           this.setState({
             is_first_bet:is_first_bet,
             pots:this.build_pot(),
@@ -691,6 +578,7 @@ function sleep (time) {
            });
       }
    }
+
    tern(is_first_bet=false,current_player_id=null,action=null){
      // console.log('tern');
       if (this.state.queue_players.length > 0){
@@ -707,7 +595,6 @@ function sleep (time) {
             is_first_bet:is_first_bet,
             pots:this.build_pot()
          });
- 
       }else{
         // console.log('out tern');
          this.sound.play( '/sound/full_table_deal.mp3',7.3); 
@@ -721,6 +608,7 @@ function sleep (time) {
          });
       }
    }
+
    river(is_first_bet=false,current_player_id=null,action=null){
      // console.log('river');
       if (this.state.queue_players.length > 0){
@@ -764,6 +652,7 @@ function sleep (time) {
          });
       }
    }
+
    win(){
      // console.log('win');
       if (this.state.pots.length > 0 ){
@@ -816,14 +705,13 @@ console.log('win=',this.state.players.get(parseInt(total.get_player_id(), 10)).n
              let win_pot = win.get_win_pot();
              let pots = this.state.pots.map((p)=>{
               if(win_pot>0){
-               if(p >= win_pot){p-=win_pot;win_pot=0;}
-               else{
-                  win_pot-=p;p=0;
-               }
+                if(p >= win_pot){p-=win_pot;win_pot=0;}
+                else{
+                   win_pot-=p;p=0;
+                }
               }
               return p; 
              }).filter((p)=>p>0);
-             // всех победителей по очереди показывать и добавлять pot 
             
             this.setState({ 
               win_players:win_players,
@@ -943,26 +831,11 @@ console.log('win=',this.state.players.get(parseInt(total.get_player_id(), 10)).n
                break;
          }
       }
-      
-      //--------------------------
-     /* this.state.players.forEach( (pl, key, map) => {
-        
-         if ( pl.site.get_button() === SMALL_BUTTON ){
-           console.log('SB',pl.name)
-         }
-         if ( pl.site.get_button() === BIG_BUTTON ){
-            console.log('BB',pl.name)
-         }
-
-      });*/
-
-      //--------------------------
-
    }
  
    get_postflop_queue_ids_player(players){
-      // start with sb
-      // построение очереди очень не еффективно!!!
+      // start with SB
+      // TODO: queuing is very inefficient!!!
       let queue_players = [];
       players.forEach( (pl, key, map) => {
          if (pl.site.get_button() === SMALL_BUTTON ){
@@ -975,7 +848,7 @@ console.log('win=',this.state.players.get(parseInt(total.get_player_id(), 10)).n
          }
       });
 
-      // добавить всех кто после BB
+      // after BB
       let first_players = false;
       players.forEach( (pl, key, map) => {
          if (first_players && pl.site.get_button() !== SMALL_BUTTON){
@@ -985,7 +858,7 @@ console.log('win=',this.state.players.get(parseInt(total.get_player_id(), 10)).n
             first_players=true;
          }
       });
-      //добавить всех кто до SB
+      // before SB
       let diff = players.size - queue_players.length;
       if (diff > 0){
          players.forEach( (pl, key, map) => {
@@ -1001,7 +874,7 @@ console.log('win=',this.state.players.get(parseInt(total.get_player_id(), 10)).n
       let finish_round = false;
       let queue_players = [];
 
-      // добавить всех кто после BB
+      // after BB
       let first_players = false;
       let last_players = true;
       players.forEach( (pl, key, map) => {
@@ -1013,7 +886,7 @@ console.log('win=',this.state.players.get(parseInt(total.get_player_id(), 10)).n
          }
       });
 
-     //добавить всех кто до SB
+     // before SB
      let diff = players.size - queue_players.length;
      if (diff > 2){
         players.forEach( (pl, key, map) => {
@@ -1035,6 +908,7 @@ console.log('win=',this.state.players.get(parseInt(total.get_player_id(), 10)).n
       });
       return queue_players;
    }
+
    handleBet(e,custom_bet=null){
       if(custom_bet!=null){
          this.state.players.get(YOUR_ID).turn_down_money(custom_bet);
@@ -1047,6 +921,7 @@ console.log('win=',this.state.players.get(parseInt(total.get_player_id(), 10)).n
       this.set_activ();
       this.game_circle(true,YOUR_ID,BET);
    }
+
    handleReise(e,custom_bet=null){
       let max_bet = this.get_max_bet(YOUR_ID);
       if(custom_bet!=null){
@@ -1059,6 +934,7 @@ console.log('win=',this.state.players.get(parseInt(total.get_player_id(), 10)).n
       this.set_activ();
       this.game_circle(true,YOUR_ID,REISE);
    } 
+
    handleAllIn(e){
       let max_bet = this.get_max_bet(YOUR_ID);
       let is_first_bet = false;
@@ -1074,12 +950,14 @@ console.log('win=',this.state.players.get(parseInt(total.get_player_id(), 10)).n
       this.state.players.get(YOUR_ID).action=ALL_IN;
       this.game_circle(is_first_bet,YOUR_ID,ALL_IN);
    }
+
    handleFold(e){
       this.state.players.get(YOUR_ID).action=FOLD;
       this.state.queue_players.shift();
       this.set_activ();
       this.game_circle(false,YOUR_ID,FOLD);
    }
+
    handleCall(e){ 
      let max_bet = this.get_max_bet(YOUR_ID);
      let action = ALL_IN;
@@ -1094,6 +972,7 @@ console.log('win=',this.state.players.get(parseInt(total.get_player_id(), 10)).n
      this.state.players.get(YOUR_ID).turn_down_money(max_bet-this.state.players.get(YOUR_ID).get_total_bet());
      this.game_circle(false,YOUR_ID,action);
    }
+
    handleCheck(e){
       this.state.players.get(YOUR_ID).action=CHECK;
       this.state.queue_players.shift();
@@ -1111,11 +990,6 @@ console.log('win=',this.state.players.get(parseInt(total.get_player_id(), 10)).n
          });
          return '';
       }
-      // Не все кнопки доступны в любой ситуации ставок!
-      // когда доступно CALL либо CHECK
-      // когда доступно REISE либо ALL-IN
-
-      // reise может быть если была уже ставка
 
       let buttons = [];
       let max_bet = this.get_max_bet(YOUR_ID); 
@@ -1137,7 +1011,7 @@ console.log('win=',this.state.players.get(parseInt(total.get_player_id(), 10)).n
       if(this.state.players.get(YOUR_ID).money > (max_bet-player.get_total_bet())*2  && this.state.is_first_bet){
          buttons.push(<button key='button_reise' className="btn btn-secondary btn-outline-dark btn-lg" type="button" onClick={(e) => this.handleReise(e)}>REISE</button>);
          buttons.push(<button key='button_all_in' className="btn btn-secondary btn-outline-dark btn-lg" type="button" onClick={(e) => this.handleAllIn(e)}>ALL-IN</button>);
-      }else /*if(this.state.players.get(YOUR_ID).money <= (max_bet*2-this.state.players.get(YOUR_ID).get_total_bet()) ||  !this.state.is_first_bet)*/{
+      }else{
          buttons.push(<button key='button_all_in' className="btn btn-secondary btn-outline-dark btn-lg" type="button" onClick={(e) => this.handleAllIn(e)}>ALL-IN</button>);
       } 
       this.value_custom_bet = max_bet>0?max_bet:this.state.cost_bb;
@@ -1149,7 +1023,6 @@ console.log('win=',this.state.players.get(parseInt(total.get_player_id(), 10)).n
          document.getElementById('customRange1').setAttribute('value', this.value_custom_bet);
       });
     
-
      return  <div className={styles.control_btn}>
           <div className="col-lg-12 text-center">
             <div className="row align-items-center">
@@ -1182,6 +1055,7 @@ console.log('win=',this.state.players.get(parseInt(total.get_player_id(), 10)).n
    build_button_url(key) {
       return `/images/button/${key}.png`;
    }
+
    getSite(site){
       let player = null;
       let is_find = false;
@@ -1191,24 +1065,12 @@ console.log('win=',this.state.players.get(parseInt(total.get_player_id(), 10)).n
             is_find = true;
           }
       });
-      if (player == null){
-         return '';
-      }
+      if (player == null){ return ''; }
 
       let is_card = true;
-      
-      if (player.card1==null){
-         is_card=false;
-      }
-
+      if (player.card1==null){ is_card=false; }
       let activ_player = '';
-      if (player.is_activ()){
-         activ_player = styles.activ_player;
-      }
-      let win_player = '';
-     /* if (this.state.id_win_player == player.id){
-         win_player = styles.win_player;
-      }*/
+      if (player.is_activ()){ activ_player = styles.activ_player; }
 
       let win_player_card1 = '';
       let win_player_card2 = '';
@@ -1216,12 +1078,9 @@ console.log('win=',this.state.players.get(parseInt(total.get_player_id(), 10)).n
          if (this.state.win_cards.includes(player.card1.key)){
             win_player_card1 = styles.win_player_card1;
          }
-         
          if (this.state.win_cards.includes(player.card2.key)){
             win_player_card2 = styles.win_player_card2;
-         } 
-               
-         
+         }  
       }
 
       let cards = [];
@@ -1248,38 +1107,39 @@ console.log('win=',this.state.players.get(parseInt(total.get_player_id(), 10)).n
       }
 
       return <React.Fragment> 
-                  <div className={styles.box_card/*+' '+win_player*/}> 
-                    {is_card && <React.Fragment>  
-                       {cards}  
-                        </React.Fragment> 
-                      }
+               <div className={styles.box_card}> 
+                  {is_card && <React.Fragment>  
+                     {cards}  
+                     </React.Fragment> 
+                     }
+               </div>
+               <div className={styles.show_action}>
+                  {this.print_action(player.action)}
+               </div>
+               <div className={styles.inform_tablo_l}>
+                  <Image key={player.build_picture_url()}
+                     src={player.build_picture_url()} 
+                     className={styles.round_l+' '+activ_player} 
+                     height={54} 
+                     width={54} 
+                     quality={100} 
+                     priority={true}
+                     layout="raw"
+                     alt=""/>
+                  <div className={styles.name_money_info}>
+                     <div key={player.name} className={styles.name_info}>{player.name}</div>
+                     <div key={String(player.money)+player.name} className={styles.money_info}>{player.money}</div>
                   </div>
-                  <div className={styles.show_action}>
-                     {this.print_action(player.action)}
-                  </div>
-                  <div className={styles.inform_tablo_l}>
-                     <Image key={player.build_picture_url()}
-                        src={player.build_picture_url()} 
-                        className={styles.round_l+' '+activ_player} 
-                        height={54} 
-                        width={54} 
-                        quality={100} 
-                        priority={true}
-                        layout="raw"
-                        alt=""/>
-                     <div className={styles.name_money_info}>
-                        <div key={player.name} className={styles.name_info}>{player.name}</div>
-                        <div key={String(player.money)+player.name} className={ styles.money_info}>{player.money}</div>
-                     </div>
-                  </div> 
-                  <div className={player.site.style.place_chips+' '+styles.chips_place_all}>
-                    {this.getPlayerChips(player)}
-                  </div>
-                  {this.getButton(player)}
-                  <div className={player.site.style.place_total_bet}>{player.get_total_bet()>0?player.get_total_bet():''}</div>
-                 
-               </React.Fragment> 
+               </div> 
+               <div className={player.site.style.place_chips+' '+styles.chips_place_all}>
+                  {this.getPlayerChips(player)}
+               </div>
+               {this.getButton(player)}
+               <div className={player.site.style.place_total_bet}>{player.get_total_bet()>0?player.get_total_bet():''}</div>
+               
+            </React.Fragment> 
    }
+
    print_action(action){
       switch (action){
          case CALL:return "CALL";
@@ -1291,6 +1151,7 @@ console.log('win=',this.state.players.get(parseInt(total.get_player_id(), 10)).n
          default:return '';
       }
    }
+
    getPlayerChips(player){
       let res = [];
       this.chipsDestruct(player.money).map(
@@ -1299,6 +1160,7 @@ console.log('win=',this.state.players.get(parseInt(total.get_player_id(), 10)).n
          ));
      return <React.Fragment> {res} </React.Fragment>  
    }
+
    getButton(player){
       let button =  player.site.get_button();
       if (button == null) {
@@ -1309,6 +1171,7 @@ console.log('win=',this.state.players.get(parseInt(total.get_player_id(), 10)).n
          return  <Image key={'button'} className={'rounded '+player.site.style.place_button} src={this.build_button_url('BB')} priority={true} layout="raw" height={25} width={25} alt=""/>
       }
    }
+
    getPlayers(){
       let res = [];
       this.state.players.forEach( (player, key, map) => {
@@ -1359,7 +1222,6 @@ console.log('win=',this.state.players.get(parseInt(total.get_player_id(), 10)).n
    }
 
    getTableCard(){
-      // TODO: заменить на раздачу по этапам, карты хранить в состоянии
       let result = [];
       if (this.state.round.current() > ROUND_PREFLOP){
          for(var i=0; i < this.state.table_cards.length; i++){  
@@ -1372,7 +1234,6 @@ console.log('win=',this.state.players.get(parseInt(total.get_player_id(), 10)).n
                   } 
                }
             }
-
             result.push(
                   <div key={this.state.table_cards[i].key+' '+win+' '+(Math.round(Math.random()*100))*1000} className={styles.table_cards_item}>
                      <Image className={styles.img+' '+win} src={this.build_url(this.state.table_cards[i].key)} priority={true} layout="raw" height={65} width={40} alt=""/>
@@ -1380,23 +1241,22 @@ console.log('win=',this.state.players.get(parseInt(total.get_player_id(), 10)).n
             );
          }
       }
-
       return result;
    }
+
    show_pot(){
       let total_pot = this.state.pots.reduce((prev, cur) => prev + cur,0);
       if(total_pot==0){return '';}
       if(this.state.pots.length==1){return total_pot};
       let result = total_pot+'(';
       for (let i=0;i<this.state.pots.length;i++){
-       /* if(this.state.pots[i]>0){*/
-           result+=this.state.pots[i];
-       /*  }*/
-        if(i!=this.state.pots.length-1)result+=' ';
+          result+=this.state.pots[i];
+          if(i!=this.state.pots.length-1)result+=' ';
       }
       result+=')';
       return result;
    }
+
    render() {
    /*
        // Рендер елементов в зависимости от состояния
@@ -1413,16 +1273,7 @@ console.log('win=',this.state.players.get(parseInt(total.get_player_id(), 10)).n
        {isLoggedIn ? <Component/> : <Component/>}
 
    */
-       //Table.count_render++;
-       
-         // (Math.round(Math.random()*1)+3)*1000
-        /* sleep(this.state.wait_step_game_circle).then(() => {   
-            if (this.state.start_game) {
-               this.game_circle();
-            }
-         });*/
-       
-         
+      
       return  !this.state.start_game ?  
          <Layout> 
            <div className={styles.pokertable}>
@@ -1442,17 +1293,14 @@ console.log('win=',this.state.players.get(parseInt(total.get_player_id(), 10)).n
             <div className={styles.place9}> {this.getSite(9)} </div> 
             <div className={styles.place10}> {this.getSite(10)} </div> 
 
-            <div  className={styles.table_pot}>
-                  <p className="text-center fw-bold fs-3">{
-                     this.show_pot()
-                     }
-                 </p>
+            <div className={styles.table_pot}>
+                  <p className="text-center fw-bold fs-3">{this.show_pot()}</p>
             </div>
 
             <div className={styles.table_cards}>
                   <div className={styles.divtest}>{this.getTableCard()} </div>
                   <div className={styles.combination_name}>{this.state.combination_name}</div>
-                  <div  className={styles.total_chips}>
+                  <div className={styles.total_chips}>
                         {this.getTotalImageChips(this.state.pots.reduce((prev, cur) => prev + cur,0))}
                   </div>
             </div>
@@ -1460,7 +1308,6 @@ console.log('win=',this.state.players.get(parseInt(total.get_player_id(), 10)).n
          {this.getControlBtn()}
       </Layout>
  }
-
 }
  
  

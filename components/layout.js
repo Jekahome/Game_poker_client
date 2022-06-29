@@ -17,30 +17,30 @@ import 'bootstrap/dist/css/bootstrap.min.css';
   
   function LinkExamapleState(){
     return  <Link href="/game/example_state">
-              <a className="nav-link">State</a>
+              <a className="nav-link">State(test)</a>
             </Link>
          
   }
   function LinkExamapleContext(){
     return  <Link href="/game/example_context">
-              <a className="nav-link">Context</a>
+              <a className="nav-link">Context(test)</a>
             </Link>
           
   }
   function LinkExamapleDb(){
     return <Link href="/example_db/pgdb">
-              <a className="nav-link">PgDB</a>
+              <a className="nav-link">PgDB(test)</a>
             </Link>
           
   }
   function LinkExamapleUseState(){
     return  <Link href="/game/example_usestate">
-              <a className="nav-link">Hook useState</a>
+              <a className="nav-link">Hook useState(test)</a>
             </Link>      
   }
   function LinkExamapleMusic(){
     return  <Link href="/music">
-              <a className="nav-link">Music</a>
+              <a className="nav-link">Music(test)</a>
             </Link>      
   }
   

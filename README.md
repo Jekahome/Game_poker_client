@@ -1,8 +1,11 @@
 
-Запуск
+### Run game
+
+```
 npm run dev
 
 Open: http://localhost:3000/
+```
 
 
 ### ReactJs
@@ -29,6 +32,7 @@ https://zvukipro.com/1917-zvuki-igry-v-poker.html
 
 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/forEach
 
+
 ### WASM
 
 https://rustwasm.github.io/docs/wasm-pack/introduction.html
@@ -39,7 +43,7 @@ https://github.com/vercel/next.js/blob/canary/examples/with-webassembly/pages/in
 
 https://ru.reactjs.org/docs/context.html
 
-### Переход на typescript:
+### Go to typescript:
 
 https://nextjs.org/docs/basic-features/typescript#pages
 https://ru.reactjs.org/docs/static-type-checking.html#configuring-the-typescript-compiler
@@ -144,17 +148,11 @@ Use Js
 
 ## Task
 
-1. + Где хранить данные (база данных на сервере postgres)
+1. + DB Storage (Rust server Postgres client)
 
-2. Процес игры, раунды торгов, как это должно работать?
-    установить кнопку D на занятое место и перемещать
+2. Develop custom modules for bot behavior based on shared data
 
-3. Обьект игрока, бота
-
-4. Правила
-
-5. выбор посадочного места для себя и возможность собрать свой стол игроков (Приоритет:низкий)
-   альтернатива фиксированное количество ботов 9 штук и стол всегда загружается с ними.
+ 
 
 
  
