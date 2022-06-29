@@ -73,13 +73,12 @@ export default class Player {
        }*/
       // if(this.id == 4){ choice=2;} 
      //  else {choice=0;}
-     choice=0;
+     choice=3;
 
        switch (choice){
           case 0:{
             // for CALL / CHECK
             if(this.get_total_bet()==max_bet){
-               console.log(this.get_total_bet(),'==',max_bet);
                this.action = CHECK;
                return {action:this.action,bet:this.get_total_bet()};
             }else if(this.money > max_bet-this.get_total_bet()){
@@ -171,6 +170,12 @@ export default class Player {
     resetHand(){
        this.#_card1=null;
        this.#_card2=null;
+    }
+    set card1(card1){
+      this.#_card1=card1;
+    }
+    set card2(card2){
+      this.#_card2=card2;
     }
     get card1(){
        return this.#_card1;

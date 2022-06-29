@@ -7,6 +7,7 @@ import {Card,Deck,cardSuits,cardNom} from '../../cards/deck'
 import Player from '../../player/player'
 import Site from '../../site'
 import Round from '../../round'
+import Sound from '../../sound'
 import profilePic from '../../public/images/q/2h.png'
 import useSWR from 'swr'
 import axios from 'axios'
@@ -20,7 +21,6 @@ import axios from 'axios'
 //const fetcher = url => axios.get(url).then(res => res.data)
  async function Getdata(){
    const { message, error } = await useSWR('/api/user', fetcher)
-   console.log("DATA:",message);
   return (
    <div>
      <h1>{message}</h1>
@@ -36,11 +36,12 @@ const FOLD = 3;
 const ALL_IN = 4;
 const CHECK = 5;
 
-const ROUND_PREFLOP = 0;
-const ROUND_FLOP = 1;
-const ROUND_TERN = 2;
-const ROUND_RIVER = 3;
-const ROUND_WIN = 4;
+const CARD_DEALT = 0;
+const ROUND_PREFLOP = 1;
+const ROUND_FLOP = 2;
+const ROUND_TERN = 3;
+const ROUND_RIVER = 4;
+const ROUND_WIN = 5;
 
 const SMALL_BUTTON = 0;
 const BIG_BUTTON = 1;
@@ -54,7 +55,7 @@ function sleep (time) {
   export async function getServerSideProps(ctx){ 
      // JSON.parse(JSON.stringify(result))  
      c++;
-     console.log('render server',c)
+     //console.log('render server',c)
      return{ props:{count:c}};
    }
   /*export async function getStaticProps(context) {
@@ -110,7 +111,6 @@ function sleep (time) {
      console.log("constructor");
      
      this.state={
-        control:{btn1:{disabled:""},btn2:{disabled:""},btn3:{disabled:"disabled"}},
         value_custom_bet:0,
         max_range:100,
         start_game:false,
@@ -127,7 +127,7 @@ function sleep (time) {
         id_win_player:null,
         win_player_index:null,
         combination_name:'',
-        wait_step_game_circle:2000,
+        wait_step_game_circle:550,
         is_cards_dealt:false,
         is_first_bet:false,
      };
@@ -164,12 +164,12 @@ function sleep (time) {
      this.set_activ = this.set_activ.bind(this);
      this.reset_action = this.reset_action.bind(this); 
      this.delete_player = this.delete_player.bind(this);
-      
+     this.action_sound = this.action_sound.bind(this);
+
+     this.sound = new Sound();
    }
     
    handleChangeCustomBet(event){
-     // console.log(event.target.value);
-     // this.setState({value_custom_bet: event.target.value});
      event.preventDefault();
      this.value_custom_bet = event.target.value;
      
@@ -222,25 +222,24 @@ function sleep (time) {
   
    handleCustomBet(event){
       event.preventDefault();
-      console.log('обновился pot');
       let custom_bet = Number(event.target.dataset.value);
       if(custom_bet>0){
          let player = this.state.players.get(YOUR_ID);
          let max_bet = this.get_max_bet(YOUR_ID);
          // bet or reise or all-in
          if(custom_bet==player.money){
-            console.log('all-in');
+           // console.log('all-in');
             this.handleAllIn();
          }else if(!this.state.is_first_bet){
             // bet 
-            console.log('bet');
+            //console.log('bet');
             this.handleBet(null,custom_bet);// но с моей ставкой 
          }else if(max_bet==custom_bet+player.get_total_bet()){
-            console.log('call');
+            //console.log('call');
             this.handleCall();
          }else if(max_bet*2 <= custom_bet+player.get_total_bet()){
             // reise 
-            console.log('reise',custom_bet);
+            //console.log('reise',custom_bet);
             this.handleReise(null,custom_bet);
          }else{
             console.error(custom_bet,'it is forbidden to bet less');
@@ -379,9 +378,9 @@ function sleep (time) {
       let s = new Site({position:10,place_chips:styles.place10_chips,place_button:styles.place10_button,place_total_bet:styles.place10_total_bet});  
       let p3 = new Player(10,"Oliver",10,s);
       players.set(p3.id,p3);    
-     }*/
-     
-     let queue = this.get_preflop_queue_ids_player(players);
+     }
+     */
+     let queue = this.get_postflop_queue_ids_player(players);
     // players.get(queue[0]).set_activ(true);
       this.setState({
          start_game:true,
@@ -396,25 +395,29 @@ function sleep (time) {
   
    }
 
-   game_circle(is_first_bet=false,current_player_id=null){
+   game_circle(is_first_bet=false,current_player_id=null,action=null){
       switch(this.state.round.current()) {
+         case CARD_DEALT:{
+            this.card_dealt(current_player_id);
+            break;
+         }
          case ROUND_PREFLOP:
-           this.preflop(current_player_id);
+           this.preflop(current_player_id,action);
            break;
          case ROUND_FLOP:
-            this.flop(is_first_bet,current_player_id);
+            this.flop(is_first_bet,current_player_id,action);
            break;
          case ROUND_TERN:
-            this.tern(is_first_bet,current_player_id);
+            this.tern(is_first_bet,current_player_id,action);
             break;
          case ROUND_RIVER:
-            this.river(is_first_bet,current_player_id);
+            this.river(is_first_bet,current_player_id,action);
             break; 
          case ROUND_WIN:
             this.win();
             break;      
          default:
-         console.log('break');
+         console.log('WTF');
            // code block
        }    
    }
@@ -453,7 +456,7 @@ function sleep (time) {
             queue_players.push(id);
          }
       });
-     if(current_player_id>0) console.log('queue_players=',queue_players)
+    
       // rebuild
       while(this.state.queue_players.length){
          this.state.queue_players.pop();
@@ -502,25 +505,23 @@ function sleep (time) {
       });
       return queue;
    }
-   card_dealt(){
-      let is_cards_dealt = this.state.is_cards_dealt;
-      if (!this.state.is_cards_dealt){
-         let queue = this.get_postflop_queue_ids_player(this.state.players);
-         for (let i =0;i<queue.length;i++){
-            this.state.players.get(queue[i]).setHand(this.state.deck.get_card(),this.state.deck.get_card());
-         }
-         this.state.players.forEach( (pl, key, map) => {
-            if (pl.site.get_button() == SMALL_BUTTON){
-                pl.turn_down_money(this.state.cost_sb); 
-                pl.action=BET;
-            }else if (pl.site.get_button() == BIG_BUTTON){
-               pl.turn_down_money(this.state.cost_bb);
-               pl.action=BET;                    
-            }
-         }); 
-         is_cards_dealt=true;
+  
+   action_sound(action){
+      if(action==REISE){
+         this.sound.play( '/sound/reise.mp3'); 
+      }else if(action==ALL_IN){
+         this.sound.play( '/sound/all-in.mp3'); 
+      }else if(action==BET){
+         this.sound.play( '/sound/bet.mp3'); 
+      }else if(action==CALL){
+        // this.sound.play( '/sound/bet.mp3'); 
+         //this.sound.play( '/sound/call.mp3',0,1,0.3); 
+         this.sound.play( '/sound/call_2.mp3'); 
+      }else if(action==CHECK){
+         this.sound.play( '/sound/check.mp3',0,1,0.3); 
+      }else if(action==FOLD){
+         this.sound.play( '/sound/fold.mp3',0,1,0.2); 
       }
-      return is_cards_dealt;
    }
    player_action(current_player_id){
       if(current_player_id==null)return null;
@@ -550,9 +551,75 @@ function sleep (time) {
          }
       })
    }
-   preflop(current_player_id=null){ 
+
+   card_dealt(current_player_id=null){
+      /*
+      let is_cards_dealt = this.state.is_cards_dealt;
+      if (!this.state.is_cards_dealt){
+         let queue = this.get_postflop_queue_ids_player(this.state.players);
+         for (let i =0;i<queue.length;i++){
+            this.state.players.get(queue[i]).setHand(this.state.deck.get_card(),this.state.deck.get_card());
+         }
+         this.state.players.forEach( (pl, key, map) => {
+            if (pl.site.get_button() == SMALL_BUTTON){
+                pl.turn_down_money(this.state.cost_sb); 
+                pl.action=BET;
+            }else if (pl.site.get_button() == BIG_BUTTON){
+               pl.turn_down_money(this.state.cost_bb);
+               pl.action=BET;                    
+            }
+         }); 
+         is_cards_dealt=true;
+         this.sound.play( '/sound/zzz_ard_deal04.mp3') 
+      }
+      return is_cards_dealt;
+*/
+      if(this.state.queue_players.length > 0){
+         let id = this.state.queue_players[0]; 
+         this.sound.play( '/sound/full_table_deal.mp3'); 
+         if(this.state.players.get(id).card1==null){
+            this.state.players.get(id).card1=this.state.deck.get_card();
+         }else{
+            this.state.players.get(id).card2=this.state.deck.get_card();
+            this.state.queue_players.shift();
+         }
+       
+         this.setState({
+            wait_step_game_circle:550,
+            queue_players:Object.assign([], this.state.queue_players),
+         });
+
+      }else{
+           this.sound.pause();
+
+           this.state.players.forEach( (pl, key, map) => {
+               if (pl.site.get_button() == SMALL_BUTTON){
+                  pl.turn_down_money(this.state.cost_sb); 
+                  this.sound.play( '/sound/bet.mp3'); 
+                  pl.action=BET;
+               }else if (pl.site.get_button() == BIG_BUTTON){
+                  pl.turn_down_money(this.state.cost_bb);
+                  this.sound.play( '/sound/bet.mp3'); 
+                  pl.action=BET;                    
+               }
+            }); 
+
+           this.reset_action();
+           this.state.round.next();
+           let queue = this.get_preflop_queue_ids_player(this.state.players);
+           this.setState({
+             wait_step_game_circle:2000,
+             is_cards_dealt:true,
+             is_first_bet:true,
+             pots:this.build_pot(),
+             queue_players:Object.assign([], queue),
+           });
+      }
+   }
+
+   preflop(current_player_id=null,action=null){ 
       //console.log('preflop');
-      let is_first_bet = this.state.is_first_bet;
+    /*  let is_first_bet = this.state.is_first_bet;
       if (!this.state.is_cards_dealt){
          this.state.players.get(this.state.queue_players[0]).set_activ(true);
          let is_cards_dealt = this.card_dealt();
@@ -562,18 +629,20 @@ function sleep (time) {
             is_cards_dealt:is_cards_dealt,
             is_first_bet:is_first_bet,
          });
-      }else if(this.state.queue_players.length > 0){
+      }else*/ 
+      if(this.state.queue_players.length > 0){
          if(current_player_id==null){
             current_player_id = this.next_activ();
             if(current_player_id==null){console.log('not implemented');}
-            this.player_action(current_player_id);
+            action = this.player_action(current_player_id);
          }
-         console.log('preflop',current_player_id);
+         this.action_sound(action);
          this.setState({
             pots:this.build_pot(),
          });
       }else{
-         console.log('out preflop');
+        // console.log('out preflop');
+         this.sound.play( '/sound/full_table_deal.mp3',6.5,1.3); 
          this.reset_action();
          this.state.round.next();
          let queue = this.next_activ_new_queue();  
@@ -586,29 +655,32 @@ function sleep (time) {
             is_first_bet:false,
             queue_players:Object.assign([], queue),
          }); 
+         
       }
    }
-   flop(is_first_bet=false,current_player_id=null){
-      console.log('flop');
+   flop(is_first_bet=false,current_player_id=null,action=null){
+      //console.log('flop');
       // сформировать новую очередь начиная с SB
 
       if(this.state.queue_players.length > 0){
-         // let is_first_bet=false;
+          
           if(current_player_id==null){
             current_player_id = this.next_activ();
             if(current_player_id==null){console.log('not implemented');}
-            let res_action = this.player_action(current_player_id);
-            if(res_action!=FOLD && res_action!=CHECK){
+            action = this.player_action(current_player_id);
+            if(action!=FOLD && action!=CHECK){
                is_first_bet=true;
             }
           }
-          console.log('preflop',current_player_id);
+          this.action_sound(action);
+         // console.log('flop',current_player_id);
           this.setState({
             is_first_bet:is_first_bet,
             pots:this.build_pot(),
           });
       }else{
-           console.log('out flop');
+          // console.log('out flop');
+           this.sound.play( '/sound/full_table_deal.mp3',7.3); 
            this.reset_action();
            this.state.round.next();
            let queue = this.next_activ_new_queue();
@@ -619,25 +691,26 @@ function sleep (time) {
            });
       }
    }
-   tern(is_first_bet=false,current_player_id=null){
-      console.log('tern');
+   tern(is_first_bet=false,current_player_id=null,action=null){
+     // console.log('tern');
       if (this.state.queue_players.length > 0){
          if(current_player_id==null){
             current_player_id = this.next_activ();
             if(current_player_id==null){console.log('not implemented');}
-            let res_action = this.player_action(current_player_id);
-            if(res_action!=FOLD && res_action!=CHECK){
+            action = this.player_action(current_player_id);
+            if(action!=FOLD && action!=CHECK){
                is_first_bet=true;
             }
          } 
-     
+         this.action_sound(action);
          this.setState({
             is_first_bet:is_first_bet,
             pots:this.build_pot()
          });
  
       }else{
-         console.log('out tern');
+        // console.log('out tern');
+         this.sound.play( '/sound/full_table_deal.mp3',7.3); 
          this.reset_action();
          this.state.round.next();
          let queue = this.next_activ_new_queue();         
@@ -648,25 +721,25 @@ function sleep (time) {
          });
       }
    }
-   river(is_first_bet=false,current_player_id=null){
-      console.log('river');
+   river(is_first_bet=false,current_player_id=null,action=null){
+     // console.log('river');
       if (this.state.queue_players.length > 0){
          if(current_player_id==null){
             current_player_id = this.next_activ();
             if(current_player_id==null){console.log('not implemented');}
-            let res_action = this.player_action(current_player_id);
-            if(res_action!=FOLD && res_action!=CHECK){
+            action = this.player_action(current_player_id);
+            if(action!=FOLD && action!=CHECK){
                is_first_bet=true;
             }
          } 
-      
-          this.setState({
-            is_first_bet:is_first_bet,
+         this.action_sound(action);
+         this.setState({
+         is_first_bet:is_first_bet,
             pots:this.build_pot(),
-          });
+         });
       }else{ 
-         console.log('out river');
-         
+          //console.log('out river');
+          this.sound.play( '/sound/full_table_deal.mp3',7.3); 
           {  
             //TODO: diff max bet
             let max_bet = 0;
@@ -692,7 +765,7 @@ function sleep (time) {
       }
    }
    win(){
-      console.log('win');
+     // console.log('win');
       if (this.state.pots.length > 0 ){
             let win_players = [];
             if (this.state.win_players.length==0 && this.state.table_cards.length == 5){
@@ -711,16 +784,15 @@ function sleep (time) {
                            let c6 = new this.mod_wasm.Card( _c6.nom, _c6.suit);
                            let _c7 = this.state.table_cards[4];
                            let c7 = new this.mod_wasm.Card( _c7.nom, _c7.suit);
-                           console.log(c1.show_card(),c2.show_card(),c3.show_card(),c4.show_card(),c5.show_card(),c6.show_card(),c7.show_card());
+console.log(c1.show_card(),c2.show_card(),c3.show_card(),c4.show_card(),c5.show_card(),c6.show_card(),c7.show_card());
                            let hand = new this.mod_wasm.Hand(String(pl.id),pl.get_total_bet(),c1,c2,c3,c4,c5,c6,c7);
                            manager.add_hand(hand);
                      }
-
                   });
 
                   let wins = manager.calculate();
                   wins.forEach( (total, index, map) => {
-                     console.log('win=',this.state.players.get(parseInt(total.get_player_id(), 10)).name, total.get_win_pot());
+console.log('win=',this.state.players.get(parseInt(total.get_player_id(), 10)).name, total.get_win_pot());
                      win_players.push(total);
                   });
 
@@ -737,7 +809,7 @@ function sleep (time) {
              let id_win_player = parseInt(win.get_player_id(), 10);
              this.state.players.get(id_win_player).add_money(win.get_win_pot());
 
-             
+             this.sound.play( '/sound/win_pot.mp3'); 
              let key_range_group = win.key_range_group;
              let win_cards = win.show_cards();
            
@@ -764,7 +836,8 @@ function sleep (time) {
       }else{
        
          sleep(2000).then(() => {  
-            console.log('out win');
+            this.sound.play( '/sound/card-shuffle.mp3'); 
+            //console.log('out win');
             this.next_site_button();
             this.delete_player(); 
             this.state.players.forEach( (pl, key, map) => {
@@ -772,7 +845,7 @@ function sleep (time) {
                pl.reset_total_bet();
             });
             this.state.deck.new_deck();
-            let queue = this.get_preflop_queue_ids_player(this.state.players);
+            let queue = this.get_postflop_queue_ids_player(this.state.players);
             //this.state.players.get(queue[0]).set_activ(true);
             this.state.round.next();
             this.setState({ 
@@ -783,7 +856,7 @@ function sleep (time) {
               pot:0,
               queue_players:Object.assign([], queue),
               combination_name:'',
-              wait_step_game_circle:2000,
+              wait_step_game_circle:550,
               is_cards_dealt:false 
             });          
        });
@@ -824,7 +897,7 @@ function sleep (time) {
   }
  
    next_site_button(){
-      console.log('next_site_button')
+      //console.log('next_site_button')
       this.state.players.forEach( (pl, key, map) => {
          if (pl.site.get_button() !== BIG_BUTTON ){
             pl.site.reset_button();
@@ -839,14 +912,14 @@ function sleep (time) {
          }
          if(is_find_sb && !is_set_sb && pl.money > 0){
             is_set_sb=true;
-            pl.site.set_sb();console.log('SET SB')
+            pl.site.set_sb();
          }
       });
       if(!is_set_sb){
          this.state.players.forEach( (pl, key, map) => {
             if(is_find_sb && !is_set_sb && pl.money > 0){
                is_set_sb=true;
-               pl.site.set_sb();console.log('SET SB')
+               pl.site.set_sb();
             }
          });
       }else{
@@ -972,7 +1045,7 @@ function sleep (time) {
       this.state.players.get(YOUR_ID).action=BET;
       this.rebuild_queue(YOUR_ID);
       this.set_activ();
-      this.game_circle(true,YOUR_ID);
+      this.game_circle(true,YOUR_ID,BET);
    }
    handleReise(e,custom_bet=null){
       let max_bet = this.get_max_bet(YOUR_ID);
@@ -984,7 +1057,7 @@ function sleep (time) {
       this.state.players.get(YOUR_ID).action=REISE;
       this.rebuild_queue(YOUR_ID);
       this.set_activ();
-      this.game_circle(true,YOUR_ID);
+      this.game_circle(true,YOUR_ID,REISE);
    } 
    handleAllIn(e){
       let max_bet = this.get_max_bet(YOUR_ID);
@@ -999,31 +1072,33 @@ function sleep (time) {
       }  
       this.set_activ();
       this.state.players.get(YOUR_ID).action=ALL_IN;
-      this.game_circle(is_first_bet,YOUR_ID);
+      this.game_circle(is_first_bet,YOUR_ID,ALL_IN);
    }
    handleFold(e){
       this.state.players.get(YOUR_ID).action=FOLD;
       this.state.queue_players.shift();
       this.set_activ();
-      this.game_circle(false,YOUR_ID);
+      this.game_circle(false,YOUR_ID,FOLD);
    }
    handleCall(e){ 
      let max_bet = this.get_max_bet(YOUR_ID);
+     let action = ALL_IN;
      if(max_bet-this.state.players.get(YOUR_ID).get_total_bet() >= this.state.players.get(YOUR_ID).money){
-        this.state.players.get(YOUR_ID).action=ALL_IN;
+        this.state.players.get(YOUR_ID).action=action;
      }else{
+        action=CALL;
         this.state.players.get(YOUR_ID).action=CALL;
      }
      this.state.queue_players.shift();
      this.set_activ();
      this.state.players.get(YOUR_ID).turn_down_money(max_bet-this.state.players.get(YOUR_ID).get_total_bet());
-     this.game_circle(false,YOUR_ID);
+     this.game_circle(false,YOUR_ID,action);
    }
    handleCheck(e){
       this.state.players.get(YOUR_ID).action=CHECK;
       this.state.queue_players.shift();
       this.set_activ();
-      this.game_circle(false,YOUR_ID);
+      this.game_circle(false,YOUR_ID,CHECK);
    }
    
    getControlBtn(){
@@ -1045,7 +1120,7 @@ function sleep (time) {
       let buttons = [];
       let max_bet = this.get_max_bet(YOUR_ID); 
       let player = this.state.players.get(YOUR_ID);
-
+ 
       if(player.get_total_bet()==max_bet && !this.state.is_first_bet){
          // CHECK
          buttons.push(<button key='button_check' className="btn btn-secondary btn-outline-dark btn-lg" type="button" onClick={(e) => this.handleCheck(e)}>CHECK</button>);
@@ -1149,27 +1224,33 @@ function sleep (time) {
          
       }
 
+      let cards = [];
+      if(player.card1!=null){
+         cards.push( <Image key={player.card1.key}
+            className={styles.img+' '+win_player_card1} 
+            src={this.build_url(player.card1.key)} 
+            height={65} width={40} 
+            quality={100} 
+            priority={true}
+            layout="raw"
+            alt=""/>);
+            if(player.card2!=null){
+               cards.push( <Image key={player.card2.key}
+               className={styles.img +' '+win_player_card2} 
+               src={this.build_url(player.card2.key)} 
+               height={65} 
+               width={40} 
+               quality={100} 
+               priority={true}
+               layout="raw"
+               alt=""/> );  
+            }
+      }
 
       return <React.Fragment> 
                   <div className={styles.box_card/*+' '+win_player*/}> 
                     {is_card && <React.Fragment>  
-                     <Image key={player.card1.key}
-                        className={styles.img+' '+win_player_card1} 
-                        src={this.build_url(player.card1.key)} 
-                        height={65} width={40} 
-                        quality={100} 
-                        priority={true}
-                        layout="raw"
-                        alt=""/>
-                        <Image key={player.card2.key}
-                        className={styles.img +' '+win_player_card2} 
-                        src={this.build_url(player.card2.key)} 
-                        height={65} 
-                        width={40} 
-                        quality={100} 
-                        priority={true}
-                        layout="raw"
-                        alt=""/>    
+                       {cards}  
                         </React.Fragment> 
                       }
                   </div>
@@ -1281,15 +1362,11 @@ function sleep (time) {
       // TODO: заменить на раздачу по этапам, карты хранить в состоянии
       let result = [];
       if (this.state.round.current() > ROUND_PREFLOP){
-        // console.log("this.state.win_cards=",this.state.win_cards);
          for(var i=0; i < this.state.table_cards.length; i++){  
-           // console.log("Debug table card=",this.state.table_cards[i].key);
-   
             let win = '';
             if (this.state.win_cards.length >0){
                for (let y=0; y < this.state.win_cards.length; y++){
                   if (this.state.win_cards[y]==this.state.table_cards[i].key){
-                    // console.log(this.state.win_cards[y],'=',this.state.table_cards[i].key)
                      win = styles.win_card;
                      break;
                   } 
@@ -1337,8 +1414,6 @@ function sleep (time) {
 
    */
        //Table.count_render++;
-       //console.log('render client=',Table.count_render);
-       
        
          // (Math.round(Math.random()*1)+3)*1000
         /* sleep(this.state.wait_step_game_circle).then(() => {   

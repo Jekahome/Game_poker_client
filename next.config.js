@@ -6,6 +6,9 @@
       config.experiments = { asyncWebAssembly: true,layers: true, }
       return config
     },
+    env: {
+      PUBLIC_URL: process.env.PUBLIC_URL,
+    },
    /* reactStrictMode: true,
     compiler: {
       styledComponents: true,
