@@ -627,7 +627,7 @@ export default class Table extends React.Component {
          });
       }else{ 
           //console.log('out river');
-          this.sound.play( '/sound/full_table_deal.mp3',7.3); 
+         // this.sound.play( '/sound/full_table_deal.mp3',7.3); 
           {  
             //TODO: diff max bet
             let max_bet = 0;
@@ -722,9 +722,8 @@ console.log('win=',this.state.players.get(parseInt(total.get_player_id(), 10)).n
               wait_step_game_circle:6000,
             });
       }else{
-       
+        this.sound.play( '/sound/card-shuffle.mp3'); 
          sleep(2000).then(() => {  
-            this.sound.play( '/sound/card-shuffle.mp3'); 
             //console.log('out win');
             this.next_site_button();
             this.delete_player(); 
