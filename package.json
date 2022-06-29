@@ -14,7 +14,6 @@
     "dev": "next -p 3000",
     "build": "next build",
     "lint": "next lint",
-    "build-rust": "wasm-pack build",
     "start": "next start"
   },
   "devDependencies": {
