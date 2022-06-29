@@ -131,7 +131,7 @@ export default class Table extends React.Component {
       this.reset_action = this.reset_action.bind(this);
       this.delete_player = this.delete_player.bind(this);
       this.action_sound = this.action_sound.bind(this);
-  
+      this.chips_destruct = this.chips_destruct.bind(this);
       this.sound = new Sound();
   }
   
@@ -282,7 +282,8 @@ start_game(event) {
    });
    b.set_bb();
    let p2 = new Player(2, "Kek", 10, b);
-   players.set(p2.id, p2); {
+   players.set(p2.id, p2); 
+   /*{
        let s = new Site({
            position: 3,
            place_chips: styles.place3_chips,
@@ -291,7 +292,8 @@ start_game(event) {
        });
        let p3 = new Player(3, "Ivan", 10, s);
        players.set(p3.id, p3);
-   } {
+   }
+    {
        let s = new Site({
            position: 4,
            place_chips: styles.place4_chips,
@@ -301,7 +303,7 @@ start_game(event) {
 
        let p3 = new Player(4, "Jack", 50, s);
        players.set(p3.id, p3);
-   }
+   }*/
    /*  {
       let s = new Site({position:5,place_chips:styles.place5_chips,place_button:styles.place5_button,place_total_bet:styles.place5_total_bet});
       let p3 = new Player(5,"Harry",10,s);
@@ -559,7 +561,7 @@ preflop(current_player_id = null, action = null) {
        if (current_player_id == null) {
            current_player_id = this.next_activ();
            if (current_player_id == null) {
-               console.log('not implemented');
+             console.warning('unimplemented');
            }
            action = this.player_action(current_player_id);
        }
@@ -593,7 +595,7 @@ flop(is_first_bet = false, current_player_id = null, action = null) {
        if (current_player_id == null) {
            current_player_id = this.next_activ();
            if (current_player_id == null) {
-               console.log('not implemented');
+             console.warning('unimplemented');
            }
            action = this.player_action(current_player_id);
            if (action != FOLD && action != CHECK) {
@@ -625,7 +627,7 @@ tern(is_first_bet = false, current_player_id = null, action = null) {
        if (current_player_id == null) {
            current_player_id = this.next_activ();
            if (current_player_id == null) {
-               console.log('not implemented');
+            console.warning('unimplemented');
            }
            action = this.player_action(current_player_id);
            if (action != FOLD && action != CHECK) {
@@ -657,7 +659,7 @@ river(is_first_bet = false, current_player_id = null, action = null) {
        if (current_player_id == null) {
            current_player_id = this.next_activ();
            if (current_player_id == null) {
-               console.log('not implemented');
+             console.warning('unimplemented');
            }
            action = this.player_action(current_player_id);
            if (action != FOLD && action != CHECK) {
@@ -704,8 +706,13 @@ win() {
    // console.log('win');
    if (this.state.pots.length > 0) {
        let win_players = [];
-       if (this.state.win_players.length == 0 && this.state.table_cards.length == 5) {
-           let manager = new this.mod_wasm.Menager(this.state.pots.reduce((prev, cur) => prev + cur, 0));
+       let count_players_without_fold = 0;
+       this.state.players.forEach((pl, key, map) => {
+         if (pl.action != FOLD) {count_players_without_fold++;}
+       });
+       let pot = this.state.pots.reduce((prev, cur) => prev + cur, 0);
+       if (count_players_without_fold > 1 && this.state.win_players.length == 0 && this.state.table_cards.length == 5) {
+           let manager = new this.mod_wasm.Menager(pot);
            this.state.players.forEach((pl, key, map) => {
                if (pl.action != FOLD) {
                    let c1 = new this.mod_wasm.Card(pl.card1.nom, pl.card1.suit);
@@ -735,6 +742,10 @@ win() {
            this.state.players.forEach((pl, key, map) => {
                pl.set_activ(false);
            });
+       }else if(count_players_without_fold==1){
+          // единственный оставшийся игрок
+          //....
+          console.warning('unimplemented');
        } else {
            win_players = this.state.win_players;
        }
@@ -1205,7 +1216,7 @@ print_action(action){
 
 getPlayerChips(player){
    let res = [];
-   this.chipsDestruct(player.money).map(
+   this.chips_destruct(player.money).map(
       (money)=>res.push(
                <Image key={String(money)+player.name} className={'rounded '+ styles.chips_player_item_all} src={this.build_chips_url(money)} layout="raw" height={55} width={40} alt=""/>
       ));
@@ -1231,7 +1242,7 @@ getPlayers(){
    return res;
 }
 
-chipsDestruct(value) {
+chips_destruct(value) {console.log('chips_destruct=',value)
    let ret = new Array();
 
    if (value > 99999) {
@@ -1260,9 +1271,9 @@ chipsDestruct(value) {
    return ret;
 }
 
-getTotalImageChips(value){
+getTotalImageChips(value){console.log('Pot=',value)
    let res = [];
-   this.chipsDestruct(value).map((money)=>res.push( 
+   this.chips_destruct(value).map((money)=>res.push( 
       <Image key={money} className={styles.chips_total_item+' rounded'} 
          src={this.build_chips_url(money)} 
          layout="raw" 

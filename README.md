@@ -12,6 +12,7 @@ Open: http://localhost:3000/
 
 https://create-react-app.dev/docs/adding-images-fonts-and-files/
 
+
 ### NextJs
 
 https://nextjs.org/docs/api-reference/next/image
@@ -32,6 +33,10 @@ https://lenguajejs.com/javascript/multimedia/api-multimedia-nativa/
 
 https://zvukipro.com/1917-zvuki-igry-v-poker.html
 
+
+### Js format
+
+https://beautifier.io/
 
 ### Map
 
