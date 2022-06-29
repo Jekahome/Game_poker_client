@@ -169,12 +169,3 @@ class Deck{
 }
 export {Card,Deck,cardSuits,cardNom};
 export default Deck;
-
-/*
- let cards = new Cards();
-for (let i=0;i<51;i++){
-     cards.get_card();
- }
-  console.log( cards.map );  
- console.log( cards.get_card() ); 
- */

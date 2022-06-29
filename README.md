@@ -146,7 +146,6 @@ Use Js
 
  export class Table extends React.Component {
     componentDidMount() {
-        // после того, как компонент отрендерился в DOM 
         (async () => {  
             this.mod_wasm = (await import('../../pkg/poker_hands'))
         }).bind(this)();
