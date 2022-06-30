@@ -17,7 +17,7 @@ import {
     YOUR_ID,
     CALL,
     BET,
-    REISE,
+    RAISE,
     FOLD,
     ALL_IN,
     CHECK,
@@ -102,7 +102,7 @@ export default class Table extends React.Component {
       this.handleCustomBet = this.handleCustomBet.bind(this);
       this.handleChangeCustomBet = this.handleChangeCustomBet.bind(this);
       this.handleBet = this.handleBet.bind(this);
-      this.handleReise = this.handleReise.bind(this);
+      this.handleRaise = this.handleRaise.bind(this);
       this.handleCall = this.handleCall.bind(this);
       this.handleFold = this.handleFold.bind(this);
       this.handleAllIn = this.handleAllIn.bind(this);
@@ -159,8 +159,8 @@ export default class Table extends React.Component {
            //console.log('call');
            this.handleCall();
        } else if (max_bet * 2 <= custom_bet + player.get_total_bet()) {
-           // reise 
-           this.handleReise(null, custom_bet);
+           // raise 
+           this.handleRaise(null, custom_bet);
        } else {
            console.error(custom_bet, 'it is forbidden to bet less');
        }
@@ -171,7 +171,7 @@ export default class Table extends React.Component {
 }
 
 start_game_test(event) {
-
+ 
    let deck = new Deck();
    let players = new Map();
    let pot = 0;
@@ -184,8 +184,8 @@ start_game_test(event) {
    });
    s.set_sb();
    let p = new Player(1, "Petr", 40, s);
-   p.setHand(deck.get_card_test('Ah'), deck.get_card_test('Ad'));
-   let bet = p.turn_down_money(40);
+   p.setHand(deck.get_card_test('As'), deck.get_card_test('Ah'));
+   let bet = p.turn_down_money(20);
    pot += bet;
    players.set(p.id, p); {
        let s = new Site({
@@ -195,12 +195,13 @@ start_game_test(event) {
            place_total_bet: styles.place2_total_bet
        });
        s.set_bb();
-       let p = new Player(2, "Kek", 10, s);
-       p.setHand(deck.get_card_test('7s'), deck.get_card_test('6d'));
-       let bet = p.turn_down_money(10);
+       let p = new Player(2, "Kek", 30, s);
+       p.setHand(deck.get_card_test('3h'), deck.get_card_test('7h'));
+       let bet = p.turn_down_money(20);
        pot += bet;
        players.set(p.id, p);
-   } {
+   } 
+   /*{
        let s = new Site({
            position: 3,
            place_chips: styles.place3_chips,
@@ -212,7 +213,8 @@ start_game_test(event) {
        let bet = p.turn_down_money(20);
        pot += bet;
        players.set(p.id, p);
-   } {
+   } 
+   {
        let s = new Site({
            position: 4,
            place_chips: styles.place4_chips,
@@ -224,7 +226,7 @@ start_game_test(event) {
        let bet = p.turn_down_money(50);
        pot += bet;
        players.set(p.id, p);
-   }
+   }*/
    let queue = this.get_postflop_queue_ids_player(players);
    players.get(queue[0]).set_activ(true);
 
@@ -232,24 +234,26 @@ start_game_test(event) {
    round.next();
    round.next();
    round.next();
-   //round.next();
+   round.next();
 
    let pots = [];
    players.forEach((e) => {
        pots.push(e.get_total_bet());
    })
    pots = this.get_chank_pot(pots);
-
+  
    this.setState({
+       wait_step_game_circle: 2000,
        table_cards: [
-           deck.get_card_test('6h'),
-           deck.get_card_test('8c'),
-           deck.get_card_test('10h'),
-           deck.get_card_test('Kh'),
-           deck.get_card_test('3c')
+           deck.get_card_test('7c'),
+           deck.get_card_test('4h'),
+           deck.get_card_test('6s'),
+           deck.get_card_test('5c'),
+           deck.get_card_test('8c')
        ],
        start_game: true,
        is_cards_dealt: true,
+       is_first_bet: false,
        pots: pots,
        players: new Map(players),
        queue_players: queue,
@@ -293,7 +297,7 @@ start_game(event) {
        let p3 = new Player(3, "Ivan", 10, s);
        players.set(p3.id, p3);
    }
-    {
+   {
        let s = new Site({
            position: 4,
            place_chips: styles.place4_chips,
@@ -336,7 +340,7 @@ start_game(event) {
      }
      */
    let queue = this.get_postflop_queue_ids_player(players);
-   // players.get(queue[0]).set_activ(true);
+   
    this.setState({
        start_game: true,
        is_cards_dealt: false,
@@ -371,7 +375,7 @@ game_circle(is_first_bet = false, current_player_id = null, action = null) {
            this.win();
            break;
        default:
-           console.log('WTF');
+           console.error('WTF');
            // code block
    }
 }
@@ -468,8 +472,8 @@ next_activ_new_queue(is_reset = false) {
 }
 
 action_sound(action) {
-   if (action == REISE) {
-       this.sound.play('/sound/reise.mp3');
+   if (action == RAISE) {
+       this.sound.play('/sound/raise.mp3');
    } else if (action == ALL_IN) {
        this.sound.play('/sound/all-in.mp3');
    } else if (action == BET) {
@@ -494,7 +498,7 @@ player_action(current_player_id) {
    };
    let get_action = this.state.players.get(current_player_id).player_action(obj_action);
 
-   if (get_action.action == REISE || (get_action.action == ALL_IN && get_action.bet > max_bet)) {
+   if (get_action.action == RAISE || (get_action.action == ALL_IN && get_action.bet > max_bet)) {
        this.rebuild_queue(current_player_id);
    }
    return get_action.action;
@@ -546,6 +550,7 @@ card_dealt(current_player_id = null) {
        this.reset_action();
        this.state.round.next();
        let queue = this.get_preflop_queue_ids_player(this.state.players);
+       this.state.players.get(queue[0]).set_activ(true);
        this.setState({
            wait_step_game_circle: 2000,
            is_cards_dealt: true,
@@ -561,7 +566,7 @@ preflop(current_player_id = null, action = null) {
        if (current_player_id == null) {
            current_player_id = this.next_activ();
            if (current_player_id == null) {
-             console.warning('unimplemented');
+             console.warn('unimplemented');
            }
            action = this.player_action(current_player_id);
        }
@@ -570,7 +575,7 @@ preflop(current_player_id = null, action = null) {
            pots: this.build_pot(),
        });
    } else {
-       // console.log('out preflop');
+        console.log('out preflop');
        this.sound.play('/sound/full_table_deal.mp3', 6.5, 1.3);
        this.reset_action();
        this.state.round.next();
@@ -595,7 +600,7 @@ flop(is_first_bet = false, current_player_id = null, action = null) {
        if (current_player_id == null) {
            current_player_id = this.next_activ();
            if (current_player_id == null) {
-             console.warning('unimplemented');
+             console.warn('unimplemented');
            }
            action = this.player_action(current_player_id);
            if (action != FOLD && action != CHECK) {
@@ -627,7 +632,7 @@ tern(is_first_bet = false, current_player_id = null, action = null) {
        if (current_player_id == null) {
            current_player_id = this.next_activ();
            if (current_player_id == null) {
-            console.warning('unimplemented');
+            console.warn('unimplemented');
            }
            action = this.player_action(current_player_id);
            if (action != FOLD && action != CHECK) {
@@ -654,12 +659,12 @@ tern(is_first_bet = false, current_player_id = null, action = null) {
 }
 
 river(is_first_bet = false, current_player_id = null, action = null) {
-   // console.log('river');
-   if (this.state.queue_players.length > 0) {
-       if (current_player_id == null) {
+      //console.log('river');
+      if (this.state.queue_players.length > 0) {
+        if (current_player_id == null) {
            current_player_id = this.next_activ();
            if (current_player_id == null) {
-             console.warning('unimplemented');
+             console.warn('unimplemented');
            }
            action = this.player_action(current_player_id);
            if (action != FOLD && action != CHECK) {
@@ -670,10 +675,9 @@ river(is_first_bet = false, current_player_id = null, action = null) {
        this.setState({
            is_first_bet: is_first_bet,
            pots: this.build_pot(),
-       });
+      });
    } else {
        //console.log('out river');
-       // this.sound.play( '/sound/full_table_deal.mp3',7.3); 
        {
            //TODO: diff max bet
            let max_bet = 0;
@@ -707,9 +711,13 @@ win() {
    if (this.state.pots.length > 0) {
        let win_players = [];
        let count_players_without_fold = 0;
+       let id_win_player = null;
        this.state.players.forEach((pl, key, map) => {
-         if (pl.action != FOLD) {count_players_without_fold++;}
+         if (pl.action != FOLD) {count_players_without_fold++; id_win_player=pl.id;}
        });
+       if(count_players_without_fold==0){
+         console.warn('unimplemented. All players fold');
+       }
        let pot = this.state.pots.reduce((prev, cur) => prev + cur, 0);
        if (count_players_without_fold > 1 && this.state.win_players.length == 0 && this.state.table_cards.length == 5) {
            let manager = new this.mod_wasm.Menager(pot);
@@ -742,46 +750,55 @@ win() {
            this.state.players.forEach((pl, key, map) => {
                pl.set_activ(false);
            });
-       }else if(count_players_without_fold==1){
-          // единственный оставшийся игрок
-          //....
-          console.warning('unimplemented');
-       } else {
+       } else if(count_players_without_fold > 1){
            win_players = this.state.win_players;
        }
 
-       let win = win_players.shift();
-       let combination_name = win.show_combination();
+       if(count_players_without_fold==1){console.log('count_players_without_fold=',count_players_without_fold)
+         this.state.players.get(id_win_player).add_money(pot);
+         this.setState({
+            win_players: [],
+            win_cards: [],
+            id_win_player: id_win_player,
+            pots:[],
+            combination_name: '',
+            wait_step_game_circle: 6000,
+         });
+      }else{
+         let win = win_players.shift();
+         let combination_name = win.show_combination();
 
-       let id_win_player = parseInt(win.get_player_id(), 10);
-       this.state.players.get(id_win_player).add_money(win.get_win_pot());
+         id_win_player = parseInt(win.get_player_id(), 10);
+         this.state.players.get(id_win_player).add_money(win.get_win_pot());
 
-       this.sound.play('/sound/win_pot.mp3');
-       let key_range_group = win.key_range_group;
-       let win_cards = win.show_cards();
+         this.sound.play('/sound/win_pot.mp3');
+         //let key_range_group = win.key_range_group;
+         let win_cards = win.show_cards();
 
-       let win_pot = win.get_win_pot();
-       let pots = this.state.pots.map((p) => {
-           if (win_pot > 0) {
-               if (p >= win_pot) {
-                   p -= win_pot;
-                   win_pot = 0;
-               } else {
-                   win_pot -= p;
-                   p = 0;
-               }
-           }
-           return p;
-       }).filter((p) => p > 0);
+         let win_pot = win.get_win_pot();
+         let pots = this.state.pots.map((p) => {
+            if (win_pot > 0) {
+                  if (p >= win_pot) {
+                     p -= win_pot;
+                     win_pot = 0;
+                  } else {
+                     win_pot -= p;
+                     p = 0;
+                  }
+            }
+            return p;
+         }).filter((p) => p > 0);
 
-       this.setState({
-           win_players: win_players,
-           win_cards: win_cards,
-           id_win_player: id_win_player,
-           pots: pots,
-           combination_name: combination_name,
-           wait_step_game_circle: 6000,
-       });
+         this.setState({
+            win_players: win_players,
+            win_cards: win_cards,
+            id_win_player: id_win_player,
+            pots: pots,
+            combination_name: combination_name,
+            wait_step_game_circle: 6000,
+         });
+      }
+
    } else {
        this.sound.play('/sound/card-shuffle.mp3');
        sleep(2000).then(() => {
@@ -791,10 +808,10 @@ win() {
            this.state.players.forEach((pl, key, map) => {
                pl.resetHand();
                pl.reset_total_bet();
+               pl.action = null;
            });
            this.state.deck.new_deck();
            let queue = this.get_postflop_queue_ids_player(this.state.players);
-           //this.state.players.get(queue[0]).set_activ(true);
            this.state.round.next();
            this.setState({
                win_players: [],
@@ -854,33 +871,31 @@ next_site_button() {
            pl.site.reset_button();
        }
    });
-   let is_find_sb = false;
+   let is_find_bb = false;
    let is_set_sb = false;
    this.state.players.forEach((pl, key, map) => {
        if (pl.site.get_button() === BIG_BUTTON) {
-           is_find_sb = true;
-
+           is_find_bb = true;
        }
-       if (is_find_sb && !is_set_sb && pl.money > 0) {
+       if (is_find_bb && !is_set_sb && pl.money > 0) {
            is_set_sb = true;
            pl.site.set_sb();
        }
    });
    if (!is_set_sb) {
        this.state.players.forEach((pl, key, map) => {
-           if (is_find_sb && !is_set_sb && pl.money > 0) {
+           if (is_find_bb && !is_set_sb && pl.money > 0) {
                is_set_sb = true;
                pl.site.set_sb();
            }
        });
-   } else {
-       console.log('WTF');
    }
 
+   
    let first_players = false;
    let is_change = false;
    this.state.players.forEach((pl, key, map) => {
-       if (first_players && !is_change) {
+       if (first_players && !is_change && pl.money > 0) {
            pl.site.set_bb();
            is_change = true;
        }
@@ -985,17 +1000,17 @@ handleBet(e, custom_bet = null) {
    this.game_circle(true, YOUR_ID, BET);
 }
 
-handleReise(e, custom_bet = null) {
+handleRaise(e, custom_bet = null) {
    let max_bet = this.get_max_bet(YOUR_ID);
    if (custom_bet != null) {
        this.state.players.get(YOUR_ID).turn_down_money(custom_bet);
    } else {
        this.state.players.get(YOUR_ID).turn_down_money(max_bet * 2 - this.state.players.get(YOUR_ID).get_total_bet());
    }
-   this.state.players.get(YOUR_ID).action = REISE;
+   this.state.players.get(YOUR_ID).action = RAISE;
    this.rebuild_queue(YOUR_ID);
    this.set_activ();
-   this.game_circle(true, YOUR_ID, REISE);
+   this.game_circle(true, YOUR_ID, RAISE);
 }
 
 handleAllIn(e) {
@@ -1047,7 +1062,10 @@ getControlBtn(){
    let is_player = false;
    this.state.players.forEach((p)=>{if(p.is_activ() && p.id==YOUR_ID){is_player=true}});
    
-   if(!is_player){
+   let is_count_activ_players = false;
+   this.state.players.forEach((p)=>{if(p.action!=FOLD && p.action!=ALL_IN && p.money>0 && p.id!=YOUR_ID){is_count_activ_players=true;}});
+
+   if(!is_player || !is_count_activ_players){
       sleep(this.state.wait_step_game_circle).then(() => {   
          if(this.state.start_game){this.game_circle();}
       });
@@ -1062,17 +1080,20 @@ getControlBtn(){
       // CHECK
       buttons.push(<button key='button_check' className="btn btn-secondary btn-outline-dark btn-lg" type="button" onClick={(e) => this.handleCheck(e)}>CHECK</button>);
       buttons.push(<button key='button_bet' className="btn btn-secondary btn-outline-dark btn-lg" type="button" disabled={false} onClick={(e) => this.handleBet(e)}>BET</button>);
-   }else if(player.money >= max_bet-player.get_total_bet() && this.state.is_first_bet){
+   }else if(player.money >= max_bet-player.get_total_bet() && this.state.is_first_bet && player.site.get_button()==BIG_BUTTON){
+      // CHECK
+      buttons.push(<button key='button_check' className="btn btn-secondary btn-outline-dark btn-lg" type="button" onClick={(e) => this.handleCheck(e)}>CHECK</button>);
+   } else if(player.money >= max_bet-player.get_total_bet() && this.state.is_first_bet ){
       // CALL
       buttons.push(<button key='button_call' className="btn btn-secondary btn-outline-dark btn-lg" type="button" onClick={(e) => this.handleCall(e)}>CALL</button>);
-   } else{
+   }else{
       buttons.push(<button key='button_bet' className="btn btn-secondary btn-outline-dark btn-lg" type="button" disabled={false} onClick={(e) => this.handleBet(e)}>BET</button>);
    }
 
    buttons.push(<button key='button_fold' className="btn btn-secondary btn-outline-dark btn-lg" type="button" onClick={(e) => this.handleFold(e)}>FOLD</button>);
 
    if(this.state.players.get(YOUR_ID).money > (max_bet-player.get_total_bet())*2  && this.state.is_first_bet){
-      buttons.push(<button key='button_reise' className="btn btn-secondary btn-outline-dark btn-lg" type="button" onClick={(e) => this.handleReise(e)}>REISE</button>);
+      buttons.push(<button key='button_raise' className="btn btn-secondary btn-outline-dark btn-lg" type="button" onClick={(e) => this.handleRaise(e)}>RAISE</button>);
       buttons.push(<button key='button_all_in' className="btn btn-secondary btn-outline-dark btn-lg" type="button" onClick={(e) => this.handleAllIn(e)}>ALL-IN</button>);
    }else{
       buttons.push(<button key='button_all_in' className="btn btn-secondary btn-outline-dark btn-lg" type="button" onClick={(e) => this.handleAllIn(e)}>ALL-IN</button>);
@@ -1138,6 +1159,7 @@ getSite(site){
    let win_player_card1 = '';
    let win_player_card2 = '';
    if (this.state.id_win_player == player.id){
+      activ_player = styles.win_player; 
       if (this.state.win_cards.includes(player.card1.key)){
          win_player_card1 = styles.win_player_card1;
       }
@@ -1206,7 +1228,7 @@ print_action(action){
    switch (action){
       case CALL:return "CALL";
       case BET:return 'BET';
-      case REISE:return "REISE";
+      case RAISE:return "RAISE";
       case FOLD:return "FOLD";
       case CHECK:return "CHECK";
       case ALL_IN:return "ALL_IN";
@@ -1242,7 +1264,7 @@ getPlayers(){
    return res;
 }
 
-chips_destruct(value) {console.log('chips_destruct=',value)
+chips_destruct(value) { 
    let ret = new Array();
 
    if (value > 99999) {
@@ -1271,7 +1293,7 @@ chips_destruct(value) {console.log('chips_destruct=',value)
    return ret;
 }
 
-getTotalImageChips(value){console.log('Pot=',value)
+getTotalImageChips(value){ 
    let res = [];
    this.chips_destruct(value).map((money)=>res.push( 
       <Image key={money} className={styles.chips_total_item+' rounded'} 

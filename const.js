@@ -12,7 +12,7 @@ export const BIG_BUTTON = 1;
 
 export const CALL = 0;
 export const BET = 1;
-export const REISE = 2;
+export const RAISE = 2;
 export const FOLD = 3;
 export const ALL_IN = 4;
 export const CHECK = 5;

@@ -1,10 +1,11 @@
 import {
     CALL,
     BET,
-    REISE,
+    RAISE,
     FOLD,
     ALL_IN,
-    CHECK
+    CHECK,
+    YOUR_ID
 } from '../const'
 
 export default class Player {
@@ -33,9 +34,6 @@ export default class Player {
     get name() {
         return this.#_name;
     }
-    get action() {
-        return this.#_show_action;
-    }
     get site() {
         return this.#_site;
     }
@@ -53,10 +51,13 @@ export default class Player {
     }
     player_action(obj_action) {
         // TODO: Replace stupid logic
+        // TODO: Add logic correctness of action(когда все all-in то игрок ждет win)
+        // TODO: Сюда может попасть YOUR_ID когда не осталось активных игроков(ALL-IN,FOLD)
 
         let max_bet = obj_action.max_bet;
         let choice = Math.round(Math.random() * 3);
-        choice = 0;
+        choice = 3;
+        if(YOUR_ID==this.id)choice=0;
 
         switch (choice) {
             case 0: {
@@ -85,10 +86,10 @@ export default class Player {
             }
             break;
             case 1: {
-                // for REISE x2
+                // for RAISE x2
                 if (this.money > (max_bet - this.get_total_bet()) * 2) {
                     this.turn_down_money(max_bet * 2 - this.get_total_bet());
-                    this.action = REISE;
+                    this.action = RAISE;
                     return {
                         action: this.action,
                         bet: this.get_total_bet()

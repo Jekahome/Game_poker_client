@@ -378,6 +378,9 @@
     to { box-shadow: 0px 0px 15px 5px #eaed13;  }
 }
 
+.win_player{
+    box-shadow: 0px 0px 15px 5px darkred;
+}
 .win_player_card1 {
     animation: win1 1.0s infinite;
     box-shadow: -5px -5px 5px 0px darkred; 
