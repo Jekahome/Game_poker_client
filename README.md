@@ -1,4 +1,21 @@
 
+### Client use
+
+NextJS 
+
+React 
+
+WASM Rust
+
+Bootstrap
+
+### Primary goals
+
+1. Implement a client to be able to develop individual decision-making logic for bots. 
+
+2. Train bots using artificial intelligence
+
+
 ### Run game
 
 ```

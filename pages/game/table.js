@@ -287,17 +287,17 @@ start_game(event) {
    b.set_bb();
    let p2 = new Player(2, "Kek", 10, b);
    players.set(p2.id, p2); 
-   /*{
+   {
        let s = new Site({
            position: 3,
            place_chips: styles.place3_chips,
            place_button: styles.place3_button,
            place_total_bet: styles.place3_total_bet
        });
-       let p3 = new Player(3, "Ivan", 10, s);
+       let p3 = new Player(3, "Ivan", 40, s);
        players.set(p3.id, p3);
    }
-   {
+ /*  {
        let s = new Site({
            position: 4,
            place_chips: styles.place4_chips,

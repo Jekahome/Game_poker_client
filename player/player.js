@@ -56,7 +56,7 @@ export default class Player {
 
         let max_bet = obj_action.max_bet;
         let choice = Math.round(Math.random() * 3);
-        choice = 3;
+        choice = 0;
         if(YOUR_ID==this.id)choice=0;
 
         switch (choice) {
