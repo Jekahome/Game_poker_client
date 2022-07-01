@@ -1,7 +1,7 @@
 .pokertable{
     width: 1000px;
     height: 600px;
-    background-image: url("/images/q/table-ps.png");
+    background-image: url("/images/table/table-ps.png");
     background-repeat: no-repeat, repeat;
     background-size: 100%;
     display: block;
@@ -322,7 +322,7 @@
     height: 65px;
 }
 .inform_tablo_l{
-    background-image: url("/images/q/tablo-l-new.png");
+    background-image: url("/images/table/tablo-l-new.png");
     background-repeat: no-repeat, repeat;
     height: 55px;
     /*width: 200px;*/

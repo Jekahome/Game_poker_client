@@ -5,7 +5,8 @@ import {
     FOLD,
     ALL_IN,
     CHECK,
-    YOUR_ID
+    YOUR_ID,
+    BIG_BUTTON
 } from '../const'
 
 export default class Player {
@@ -49,15 +50,67 @@ export default class Player {
     set action(action) {
         this.#_show_action = action;
     }
+
+    choice(obj_action){
+        switch (obj_action.choice) {
+            case 0: {
+                // когда можо CHECK
+                if((this.get_total_bet()==obj_action.max_bet && !obj_action.is_first_bet) ||
+                (obj_action.is_first_bet && this.site.get_button()==BIG_BUTTON)
+                ){return true;}
+
+                // когда можо CALL
+                if(obj_action.is_first_bet==true && 
+                    (this.money >= obj_action.max_bet-this.get_total_bet())){return true;}
+            } 
+            break;
+            case 1: {
+
+                // когда можо RAISE 
+                if(obj_action.is_first_bet && 
+                    this.money > (obj_action.max_bet-this.get_total_bet())+obj_action.max_bet){return true;}
+            }
+            break;
+            break;
+            case 2: {
+
+                // когда можо ALL-IN
+                if(obj_action.is_first_bet){return true;}
+            }
+            break;
+            break;
+            case 3: {
+                // когда можно FOLD
+                return true;
+            }
+            break;
+            break;
+            case 4: {
+                // когда можо BET 
+                if(obj_action.is_first_bet==false && this.money > obj_action.cost_bb){return true;}
+            }
+            break;
+            default:
+                return false;
+        }
+    }
+
     player_action(obj_action) {
         // TODO: Replace stupid logic
         // TODO: Add logic correctness of action(когда все all-in то игрок ждет win)
         // TODO: Сюда может попасть YOUR_ID когда не осталось активных игроков(ALL-IN,FOLD)
 
         let max_bet = obj_action.max_bet;
-        let choice = Math.round(Math.random() * 3);
-        choice = 0;
-        if(YOUR_ID==this.id)choice=0;
+        let is_first_bet = obj_action.is_first_bet;// была ли уже первая ставка
+        let cost_bb = obj_action.cost_bb;
+
+        obj_action.choice =  Math.round(Math.random() *4);
+        while(!this.choice(obj_action)){
+             obj_action.choice =  Math.round(Math.random() *4);
+        }
+        let choice = obj_action.choice;
+ choice=0;
+        if(YOUR_ID == this.id)choice = 0;
 
         switch (choice) {
             case 0: {
@@ -87,7 +140,7 @@ export default class Player {
             break;
             case 1: {
                 // for RAISE x2
-                if (this.money > (max_bet - this.get_total_bet()) * 2) {
+                if (this.money > (max_bet - this.get_total_bet()) + max_bet) {
                     this.turn_down_money(max_bet * 2 - this.get_total_bet());
                     this.action = RAISE;
                     return {
@@ -120,6 +173,16 @@ export default class Player {
                 return {
                     action: this.action,
                     bet: 0
+                };
+            }
+            break;
+            case 4:{
+                 // for BET
+                 this.turn_down_money(cost_bb);
+                 this.action = BET;
+                 return {
+                    action: this.action,
+                    bet: cost_bb
                 };
             }
             break;

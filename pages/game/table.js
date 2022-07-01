@@ -134,41 +134,6 @@ export default class Table extends React.Component {
       this.chips_destruct = this.chips_destruct.bind(this);
       this.sound = new Sound();
   }
-  
-  handleChangeCustomBet(event) {
-      event.preventDefault();
-      this.value_custom_bet = event.target.value;
-  
-      document.getElementById('button-addon2').innerText = this.value_custom_bet;
-      document.getElementById('button-addon2').setAttribute('data-value', this.value_custom_bet);
-      document.getElementById('customRange1').setAttribute('value', this.value_custom_bet);
-  }
-  handleCustomBet(event) {
-   event.preventDefault();
-   let custom_bet = Number(event.target.dataset.value);
-   if (custom_bet > 0) {
-       let player = this.state.players.get(YOUR_ID);
-       let max_bet = this.get_max_bet(YOUR_ID);
-       if (custom_bet == player.money) {
-           // console.log('all-in');
-           this.handleAllIn();
-       } else if (!this.state.is_first_bet) {
-           // bet 
-           this.handleBet(null, custom_bet);
-       } else if (max_bet == custom_bet + player.get_total_bet()) {
-           //console.log('call');
-           this.handleCall();
-       } else if (max_bet * 2 <= custom_bet + player.get_total_bet()) {
-           // raise 
-           this.handleRaise(null, custom_bet);
-       } else {
-           console.error(custom_bet, 'it is forbidden to bet less');
-       }
-   } else {
-       console.error('WTF');
-   }
-   return;
-}
 
 start_game_test(event) {
  
@@ -187,7 +152,9 @@ start_game_test(event) {
    p.setHand(deck.get_card_test('As'), deck.get_card_test('Ah'));
    let bet = p.turn_down_money(20);
    pot += bet;
-   players.set(p.id, p); {
+   players.set(p.id, p); 
+   
+   {
        let s = new Site({
            position: 2,
            place_chips: styles.place2_chips,
@@ -201,7 +168,8 @@ start_game_test(event) {
        pot += bet;
        players.set(p.id, p);
    } 
-   /*{
+
+   {
        let s = new Site({
            position: 3,
            place_chips: styles.place3_chips,
@@ -209,12 +177,12 @@ start_game_test(event) {
            place_total_bet: styles.place3_total_bet
        });
        let p = new Player(3, "Ivan", 10, s);
-       p.setHand(deck.get_card_test('8d'), deck.get_card_test('Jd'));
-       let bet = p.turn_down_money(20);
+       p.setHand(deck.get_card_test('9d'), deck.get_card_test('3s'));
+       let bet = p.turn_down_money(10);
        pot += bet;
        players.set(p.id, p);
    } 
-   {
+  /* {
        let s = new Site({
            position: 4,
            place_chips: styles.place4_chips,
@@ -275,7 +243,7 @@ start_game(event) {
        place_total_bet: styles.place1_total_bet
    });
    s.set_sb();
-   let p = new Player(1, "Petr", 40, s);
+   let p = new Player(1, "Petr", 42, s);
    players.set(p.id, p);
 
    let b = new Site({
@@ -285,8 +253,9 @@ start_game(event) {
        place_total_bet: styles.place2_total_bet
    });
    b.set_bb();
-   let p2 = new Player(2, "Kek", 10, b);
+   let p2 = new Player(2, "Kek", 1, b);
    players.set(p2.id, p2); 
+
    {
        let s = new Site({
            position: 3,
@@ -297,7 +266,8 @@ start_game(event) {
        let p3 = new Player(3, "Ivan", 40, s);
        players.set(p3.id, p3);
    }
- /*  {
+
+   {
        let s = new Site({
            position: 4,
            place_chips: styles.place4_chips,
@@ -305,9 +275,9 @@ start_game(event) {
            place_total_bet: styles.place4_total_bet
        });
 
-       let p3 = new Player(4, "Jack", 50, s);
+       let p3 = new Player(4, "Jack", 40, s);
        players.set(p3.id, p3);
-   }*/
+   }
    /*  {
       let s = new Site({position:5,place_chips:styles.place5_chips,place_button:styles.place5_button,place_total_bet:styles.place5_total_bet});
       let p3 = new Player(5,"Harry",10,s);
@@ -354,7 +324,8 @@ start_game(event) {
 
 }
 game_circle(is_first_bet = false, current_player_id = null, action = null) {
-   switch (this.state.round.current()) {
+    if(this.state.players.size > 1){
+      switch (this.state.round.current()) {
        case CARD_DEALT: {
            this.card_dealt(current_player_id);
            break;
@@ -378,6 +349,8 @@ game_circle(is_first_bet = false, current_player_id = null, action = null) {
            console.error('WTF');
            // code block
    }
+    }
+
 }
 
 get_max_bet(current_player_id) {
@@ -494,7 +467,9 @@ player_action(current_player_id) {
    let max_bet = this.get_max_bet(current_player_id);
 
    let obj_action = {
-       max_bet: max_bet
+       max_bet: max_bet,
+       is_first_bet:this.state.is_first_bet,
+       cost_bb:this.state.cost_bb
    };
    let get_action = this.state.players.get(current_player_id).player_action(obj_action);
 
@@ -538,13 +513,24 @@ card_dealt(current_player_id = null) {
        this.sound.pause();
        this.state.players.forEach((pl, key, map) => {
            if (pl.site.get_button() == SMALL_BUTTON) {
-               pl.turn_down_money(this.state.cost_sb);
-               this.sound.play('/sound/bet.mp3');
-               pl.action = BET;
+                if(pl.money <= this.state.cost_sb){
+                    pl.action = ALL_IN;
+                }else{
+                    pl.action = BET;
+                }
+                pl.turn_down_money(this.state.cost_sb);
+                this.sound.play('/sound/bet.mp3');
+             
+               
            } else if (pl.site.get_button() == BIG_BUTTON) {
-               pl.turn_down_money(this.state.cost_bb);
-               this.sound.play('/sound/bet.mp3');
-               pl.action = BET;
+                if(pl.money <= this.state.cost_bb){
+                    pl.action = ALL_IN;
+                }else{
+                    pl.action = BET;
+                }
+                pl.turn_down_money(this.state.cost_bb);
+                this.sound.play('/sound/bet.mp3');
+               
            }
        });
        this.reset_action();
@@ -986,6 +972,42 @@ get_preflop_queue_ids_player(players) {
    });
    return queue_players;
 }
+  
+handleChangeCustomBet(event) {
+    event.preventDefault();
+    this.value_custom_bet = event.target.value;
+
+    document.getElementById('button-addon2').innerText = this.value_custom_bet;
+    document.getElementById('button-addon2').setAttribute('data-value', this.value_custom_bet);
+    document.getElementById('customRange1').setAttribute('value', this.value_custom_bet);
+}
+
+handleCustomBet(event) {
+ event.preventDefault();
+ let custom_bet = Number(event.target.dataset.value);
+ if (custom_bet > 0) {
+     let player = this.state.players.get(YOUR_ID);
+     let max_bet = this.get_max_bet(YOUR_ID);
+     if (custom_bet == player.money) {
+         // console.log('all-in');
+         this.handleAllIn();
+     } else if (!this.state.is_first_bet) {
+         // bet 
+         this.handleBet(null, custom_bet);
+     } else if (max_bet == custom_bet + player.get_total_bet()) {
+         //console.log('call');
+         this.handleCall();
+     } else if (max_bet * 2 <= custom_bet + player.get_total_bet()) {
+         // raise 
+         this.handleRaise(null, custom_bet);
+     } else {
+         console.error(custom_bet, 'it is forbidden to bet less');
+     }
+ } else {
+     console.error('WTF');
+ }
+ return;
+}
 
 handleBet(e, custom_bet = null) {
    if (custom_bet != null) {
@@ -1059,13 +1081,14 @@ handleCheck(e) {
 }
    
 getControlBtn(){
-   let is_player = false;
-   this.state.players.forEach((p)=>{if(p.is_activ() && p.id==YOUR_ID){is_player=true}});
-   
+   let player = this.state.players.get(YOUR_ID);
+   let is_player = player.is_activ();
+ 
    let is_count_activ_players = false;
-   this.state.players.forEach((p)=>{if(p.action!=FOLD && p.action!=ALL_IN && p.money>0 && p.id!=YOUR_ID){is_count_activ_players=true;}});
-
-   if(!is_player || !is_count_activ_players){
+   this.state.players.forEach((p)=>{if(!is_count_activ_players && p.action!=FOLD && p.action!=ALL_IN && p.money>0 && p.id!=YOUR_ID ){is_count_activ_players=true;}});
+  
+   let max_bet = this.get_max_bet(YOUR_ID); 
+   if(!is_player || (!is_count_activ_players && (player.action == ALL_IN || max_bet == player.get_total_bet()) )  ){
       sleep(this.state.wait_step_game_circle).then(() => {   
          if(this.state.start_game){this.game_circle();}
       });
@@ -1073,12 +1096,11 @@ getControlBtn(){
    }
 
    let buttons = [];
-   let max_bet = this.get_max_bet(YOUR_ID); 
-   let player = this.state.players.get(YOUR_ID);
-
+   
    if(player.get_total_bet()==max_bet && !this.state.is_first_bet){
       // CHECK
       buttons.push(<button key='button_check' className="btn btn-secondary btn-outline-dark btn-lg" type="button" onClick={(e) => this.handleCheck(e)}>CHECK</button>);
+     if(is_count_activ_players)
       buttons.push(<button key='button_bet' className="btn btn-secondary btn-outline-dark btn-lg" type="button" disabled={false} onClick={(e) => this.handleBet(e)}>BET</button>);
    }else if(player.money >= max_bet-player.get_total_bet() && this.state.is_first_bet && player.site.get_button()==BIG_BUTTON){
       // CHECK
@@ -1086,13 +1108,13 @@ getControlBtn(){
    } else if(player.money >= max_bet-player.get_total_bet() && this.state.is_first_bet ){
       // CALL
       buttons.push(<button key='button_call' className="btn btn-secondary btn-outline-dark btn-lg" type="button" onClick={(e) => this.handleCall(e)}>CALL</button>);
-   }else{
+   }else if(!this.state.is_first_bet){
       buttons.push(<button key='button_bet' className="btn btn-secondary btn-outline-dark btn-lg" type="button" disabled={false} onClick={(e) => this.handleBet(e)}>BET</button>);
    }
-
+ 
    buttons.push(<button key='button_fold' className="btn btn-secondary btn-outline-dark btn-lg" type="button" onClick={(e) => this.handleFold(e)}>FOLD</button>);
 
-   if(this.state.players.get(YOUR_ID).money > (max_bet-player.get_total_bet())*2  && this.state.is_first_bet){
+   if(player.money > (max_bet-player.get_total_bet())+max_bet  && this.state.is_first_bet){
       buttons.push(<button key='button_raise' className="btn btn-secondary btn-outline-dark btn-lg" type="button" onClick={(e) => this.handleRaise(e)}>RAISE</button>);
       buttons.push(<button key='button_all_in' className="btn btn-secondary btn-outline-dark btn-lg" type="button" onClick={(e) => this.handleAllIn(e)}>ALL-IN</button>);
    }else{
@@ -1130,8 +1152,9 @@ getControlBtn(){
    </div>
 }
 
-build_url(key) {
-   return `/images/q/${key}.png`;
+build_cards_url(key) {
+   return `/images/cards/${key}.png`;
+  // return `/images/spizhenno/cards/${key}.png`;
 }
 build_chips_url(key) {
    return `/images/chips/${key}.png`;
@@ -1173,7 +1196,7 @@ getSite(site){
       cards.push( 
       <Image key={player.card1.key}
                className={styles.img+' '+win_player_card1} 
-               src={this.build_url(player.card1.key)} 
+               src={this.build_cards_url(player.card1.key)} 
                height={65} width={40} 
                quality={100} 
                priority={true}
@@ -1183,7 +1206,7 @@ getSite(site){
             cards.push( 
             <Image key={player.card2.key}
                      className={styles.img +' '+win_player_card2} 
-                     src={this.build_url(player.card2.key)} 
+                     src={this.build_cards_url(player.card2.key)} 
                      height={65} 
                      width={40} 
                      quality={100} 
@@ -1321,7 +1344,7 @@ getTableCard(){
          }
          result.push(
                <div key={this.state.table_cards[i].key+' '+win+' '+(Math.round(Math.random()*100))*1000} className={styles.table_cards_item}>
-                  <Image className={styles.img+' '+win} src={this.build_url(this.state.table_cards[i].key)} priority={true} layout="raw" height={65} width={40} alt=""/>
+                  <Image className={styles.img+' '+win} src={this.build_cards_url(this.state.table_cards[i].key)} priority={true} layout="raw" height={65} width={40} alt=""/>
                </div>
          );
       }
@@ -1366,7 +1389,7 @@ render() {
    return  !this.state.start_game ?  
       <Layout> 
          <div className={styles.pokertable}>
-            <button className={"btn btn-secondary btn-outline-dark btn-lg "+styles.start_game_btn} type="button" onClick={this.start_game}>Open table {this.props.count}</button>
+            <button className={"btn btn-secondary btn-outline-dark btn-lg "+styles.start_game_btn} type="button" onClick={this.start_game_test}>Open table {this.props.count}</button>
          </div>
       </Layout> : 
       <Layout>
