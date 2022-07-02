@@ -28,6 +28,7 @@ export default class Player {
         this.#_money = money;
         this.#_total_bet = 0;
         this.#_show_action = null;
+        this.s=false;
     }
     get id() {
         return this.#_id;
@@ -110,8 +111,10 @@ export default class Player {
         }
         let choice = obj_action.choice;
  choice=0;
-        if(YOUR_ID == this.id)choice = 0;
-
+        if(YOUR_ID == this.id){
+            console.warn('unimplemented');
+            choice = 0;
+        }
         switch (choice) {
             case 0: {
                 // for CALL / CHECK
