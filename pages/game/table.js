@@ -252,7 +252,7 @@ start_game(event) {
        place_win_chips:styles.place_win_chips_1
    });
    s.set_sb();
-   let p = new Player(1, "Petr", 2, s);
+   let p = new Player(1, "Petr", 200, s);
    players.set(p.id, p);
 
    {
@@ -265,10 +265,9 @@ start_game(event) {
         place_win_chips:styles.place_win_chips_2
     });
     s.set_bb();
-    let p = new Player(2, "Kek", 20, s);
+    let p = new Player(2, "Kek", 200, s);
     players.set(p.id, p); 
    }
-   
    {
        // 3
        let s = new Site({
@@ -278,10 +277,10 @@ start_game(event) {
            place_total_bet: styles.place3_total_bet,
            place_win_chips:styles.place_win_chips_3
        });
-       let p = new Player(3, "Ivan", 40, s);
+       let p = new Player(3, "Ivan", 400, s);
        players.set(p.id, p);
    }
- /* {
+   {
        //4
        let s = new Site({
            position: 4,
@@ -290,7 +289,7 @@ start_game(event) {
            place_total_bet: styles.place4_total_bet,
            place_win_chips:styles.place_win_chips_4
        });
-       let p = new Player(4, "Jack", 10, s);
+       let p = new Player(4, "Jack", 100, s);
        players.set(p.id, p);
     }
   {
@@ -302,7 +301,7 @@ start_game(event) {
           place_total_bet:styles.place5_total_bet,
           place_win_chips:styles.place_win_chips_5
         });
-      let p = new Player(5,"Harry",2,s);
+      let p = new Player(5,"Harry",200,s);
       players.set(p.id,p);    
      }
     {
@@ -314,7 +313,7 @@ start_game(event) {
           place_total_bet:styles.place6_total_bet,
           place_win_chips:styles.place_win_chips_6
         });
-      let p = new Player(6,"Jacob",40,s);
+      let p = new Player(6,"Jacob",400,s);
       players.set(p.id,p);    
      }
      {
@@ -326,7 +325,7 @@ start_game(event) {
           place_total_bet:styles.place7_total_bet,
           place_win_chips:styles.place_win_chips_7
         });
-      let p = new Player(7,"Charley",10,s);
+      let p = new Player(7,"Charley",100,s);
       players.set(p.id,p);    
      }
      {
@@ -338,7 +337,7 @@ start_game(event) {
           place_total_bet:styles.place8_total_bet,
           place_win_chips:styles.place_win_chips_8
         });
-      let p = new Player(8,"Thomas",40,s);
+      let p = new Player(8,"Thomas",400,s);
       players.set(p.id,p);    
      }
      {
@@ -350,7 +349,7 @@ start_game(event) {
           place_total_bet:styles.place9_total_bet,
           place_win_chips:styles.place_win_chips_9
         });
-      let p = new Player(9,"George",40,s);
+      let p = new Player(9,"George",400,s);
       players.set(p.id,p);    
      }
      {
@@ -362,10 +361,10 @@ start_game(event) {
           place_total_bet:styles.place10_total_bet,
           place_win_chips:styles.place_win_chips_10
         });  
-      let p = new Player(10,"Oliver",40,s);
+      let p = new Player(10,"Oliver",400,s);
       players.set(p.id,p);    
      }
-     */
+     
    let queue = this.get_postflop_queue_ids_player(players);
    queue = queue.concat(queue);
    this.setState({
@@ -383,29 +382,29 @@ start_game(event) {
 game_circle(is_first_bet = false, current_player_id = null, action = null) {
     if(this.state.players.size > 1){
       switch (this.state.round.current()) {
-       case CARD_DEALT: {
-           this.card_dealt(current_player_id);
-           break;
-       }
-       case ROUND_PREFLOP:
-           this.preflop(current_player_id, action);
-           break;
-       case ROUND_FLOP:
-           this.flop(is_first_bet, current_player_id, action);
-           break;
-       case ROUND_TERN:
-           this.tern(is_first_bet, current_player_id, action);
-           break;
-       case ROUND_RIVER:
-           this.river(is_first_bet, current_player_id, action);
-           break;
-       case ROUND_WIN:
-           this.win();
-           break;
-       default:
-           console.error('WTF');
-           // code block
-   }
+        case CARD_DEALT: {
+            this.card_dealt(current_player_id);
+            break;
+        }
+        case ROUND_PREFLOP:
+            this.preflop(current_player_id, action);
+            break;
+        case ROUND_FLOP:
+            this.flop(is_first_bet, current_player_id, action);
+            break;
+        case ROUND_TERN:
+            this.tern(is_first_bet, current_player_id, action);
+            break;
+        case ROUND_RIVER:
+            this.river(is_first_bet, current_player_id, action);
+            break;
+        case ROUND_WIN:
+            this.win();
+            break;
+        default:
+            console.error('WTF');
+            // code block
+     }
     }
 
 }
@@ -604,7 +603,7 @@ card_dealt(current_player_id = null) {
    }
 }
 preflop(current_player_id = null, action = null) {
-   console.log('preflop',this.state.queue_players);
+   //console.log('preflop');
    if (this.state.queue_players.length > 0 && this.state.count_player_activ > 1) {
        if (current_player_id == null) {
            current_player_id = this.next_activ();
@@ -613,13 +612,13 @@ preflop(current_player_id = null, action = null) {
            }
            action = this.player_action(current_player_id);
        }
-       console.log('action',current_player_id,this.print_action(action))
+      
        this.action_sound(action);
        this.setState({
            pots: this.build_pot(),
        });
    } else {
-        console.log('out preflop');
+       //console.log('out preflop');
        this.sound.play('/sound/full_table_deal.mp3', 6.5, 1.3);
        this.reset_action();
        this.state.round.next();
@@ -824,9 +823,7 @@ win() {
             this.state.players.get(id_win_player).add_money(win.get_win_pot());
 
             this.sound.play('/sound/win_pot.mp3');
-            //let key_range_group = win.key_range_group;
             let win_cards = win.show_cards();
-
             let win_pot = win.get_win_pot();
             let pots = this.state.pots.map((p) => {
                 if (win_pot > 0) {
@@ -840,7 +837,6 @@ win() {
                 }
                 return p;
             }).filter((p) => p > 0);
-
             this.setState({
                 win_players: win_players,
                 win_cards: win_cards,
@@ -851,7 +847,7 @@ win() {
                 wait_step_game_circle: 6000,
             });
       }
-   } else {console.log('out win');
+   } else {
        this.sound.play('/sound/card-shuffle.mp3');
        sleep(2000).then(() => {
            //console.log('out win');
@@ -879,7 +875,6 @@ win() {
                is_cards_dealt: false
            });
        });
-
    }
 }
 
@@ -995,7 +990,7 @@ get_postflop_queue_ids_player(players) {
    if (diff > 0) {
        players.forEach((pl, key, map) => {
            if (players.size > queue_players.length && (pl.action!=ALL_IN && pl.action!=FOLD)) {
-               queue_players.push(pl.id);
+              if(!queue_players.includes(pl.id)) queue_players.push(pl.id);
            }
        });
    }
@@ -1151,9 +1146,12 @@ handleCheck(e) {
 getControlBtn(){
    let player = this.state.players.get(YOUR_ID);
    if(!player){
-     this.game_circle();
+     sleep(this.state.wait_step_game_circle).then(() => {   
+        if(this.state.start_game){this.game_circle();}
+     });
      return;
    }
+
    let is_player = player.is_activ();
  
    let is_count_activ_players = false;
@@ -1168,7 +1166,7 @@ getControlBtn(){
    }
 
    let buttons = [];
-   console.log('is_count_activ_players=',is_count_activ_players);
+   
    if(player.get_total_bet()==max_bet && !this.state.is_first_bet){
       // CHECK
       buttons.push(<button key='button_check' className="btn btn-secondary btn-outline-dark btn-lg" type="button" onClick={(e) => this.handleCheck(e)}>CHECK</button>);

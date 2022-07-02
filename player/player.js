@@ -98,8 +98,7 @@ export default class Player {
 
     player_action(obj_action) {
         // TODO: Replace stupid logic
-        // TODO: Add logic correctness of action(когда все all-in то игрок ждет win)
-        // TODO: Сюда может попасть YOUR_ID когда не осталось активных игроков(ALL-IN,FOLD)
+        // TODO: Add logic correctness of action
 
         let max_bet = obj_action.max_bet;
         let is_first_bet = obj_action.is_first_bet;// была ли уже первая ставка
@@ -110,7 +109,7 @@ export default class Player {
              obj_action.choice =  Math.round(Math.random() *4);
         }
         let choice = obj_action.choice;
- choice=0;
+ //choice=0;
         if(YOUR_ID == this.id){
             console.warn('unimplemented');
             choice = 0;
