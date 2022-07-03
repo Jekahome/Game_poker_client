@@ -5,10 +5,9 @@ import {
     FOLD,
     ALL_IN,
     CHECK,
-    YOUR_ID,
     BIG_BUTTON
 } from '../const'
-
+var YOUR_ID = 1;
 export default class Player {
     #_id;
     #_name;
@@ -19,6 +18,9 @@ export default class Player {
     #_activ = false;
     #_total_bet = 0;
     #_show_action;
+    componentDidMount() {
+        YOUR_ID = Number(sessionStorage.getItem('id')>0?sessionStorage.getItem('id'):1);
+    }
     constructor(id, name, money, site) {
         this.#_id = id;
         this.#_name = name;
@@ -104,12 +106,37 @@ export default class Player {
         let is_first_bet = obj_action.is_first_bet;// была ли уже первая ставка
         let cost_bb = obj_action.cost_bb;
 
-        obj_action.choice =  Math.round(Math.random() *4);
-        while(!this.choice(obj_action)){
-             obj_action.choice =  Math.round(Math.random() *4);
-        }
+        do{
+            switch (Math.round(Math.random() *19)){//1item=5%
+                case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8: case 9: case 10: case 11:{
+                    obj_action.choice = 0;// 60% CALL
+                }
+                break;
+                case 12:{
+                    obj_action.choice = 1;// 5% RAISE
+                }
+                break;
+                case 13: {
+                    obj_action.choice = 2;// 5% ALL_IN
+                }
+                break;
+                case 14: case 15: case 16: case 17: {
+                    obj_action.choice = 3;// 20% FOLD
+                }
+                break;
+                case 18: case 19:{
+                    obj_action.choice = 4;// 10% BET
+                }
+                break;
+                default:
+            }
+        }while(!this.choice(obj_action));
+        
+
+ //choice=3; obj_action.choice = 3;// !!!
+
         let choice = obj_action.choice;
- //choice=0;
+
         if(YOUR_ID == this.id){
             console.warn('unimplemented');
             choice = 0;

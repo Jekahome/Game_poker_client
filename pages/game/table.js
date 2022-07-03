@@ -14,7 +14,6 @@ import Round from '../../round'
 import Sound from '../../sound'
 //import axios from 'axios'
 import {
-    YOUR_ID,
     CALL,
     BET,
     RAISE,
@@ -62,20 +61,18 @@ export async function getServerSideProps(ctx){
       }
  }*/
  // static async getInitialProps(ctx) {return {value:0} }   
+var YOUR_ID = 1;
 
 export default class Table extends React.Component {
-   static count_render=0;
-   
-   componentDidMount() {
+ static count_render=0;
+ componentDidMount() {
       (async () => {
           this.mod_wasm = (await import('../../pkg/poker_hands'))
       }).bind(this)();
+      YOUR_ID = Number(sessionStorage.getItem('id')>0?sessionStorage.getItem('id'):1);
   }
-  
   constructor(props) {
       super(props);
-      console.log("constructor");
-  
       this.state = {
           value_custom_bet: 0,
           max_range: 100,
@@ -136,7 +133,7 @@ export default class Table extends React.Component {
       this.chips_destruct = this.chips_destruct.bind(this);
       this.get_count_player_activ = this.get_count_player_activ.bind(this);
       this.sound = new Sound();
-  }
+}
 
 start_game_test(event) {
  
@@ -252,7 +249,7 @@ start_game(event) {
        place_win_chips:styles.place_win_chips_1
    });
    s.set_sb();
-   let p = new Player(1, "Petr", 200, s);
+   let p = new Player(1, "Petr", 1, s);
    players.set(p.id, p);
 
    {
@@ -277,7 +274,7 @@ start_game(event) {
            place_total_bet: styles.place3_total_bet,
            place_win_chips:styles.place_win_chips_3
        });
-       let p = new Player(3, "Ivan", 400, s);
+       let p = new Player(3, "Ivan", 40, s);
        players.set(p.id, p);
    }
    {
@@ -301,7 +298,7 @@ start_game(event) {
           place_total_bet:styles.place5_total_bet,
           place_win_chips:styles.place_win_chips_5
         });
-      let p = new Player(5,"Harry",200,s);
+      let p = new Player(5,"Harry",20,s);
       players.set(p.id,p);    
      }
     {
@@ -349,7 +346,7 @@ start_game(event) {
           place_total_bet:styles.place9_total_bet,
           place_win_chips:styles.place_win_chips_9
         });
-      let p = new Player(9,"George",400,s);
+      let p = new Player(9,"George",4,s);
       players.set(p.id,p);    
      }
      {
@@ -361,7 +358,7 @@ start_game(event) {
           place_total_bet:styles.place10_total_bet,
           place_win_chips:styles.place_win_chips_10
         });  
-      let p = new Player(10,"Oliver",400,s);
+      let p = new Player(10,"Oliver",800,s);
       players.set(p.id,p);    
      }
      
@@ -766,10 +763,32 @@ win() {
          if (pl.action != FOLD) {count_players_without_fold++; id_win_player=pl.id;}
        });
        if(count_players_without_fold==0){
-         console.warn('unimplemented. All players fold');
-       }
+         this.setState({
+            win_players: [],
+            win_cards: [],
+            id_win_player: null,
+            win_pot:pot,
+            pots:[],
+            combination_name: '',
+            wait_step_game_circle: 6000,
+         });
+         return;
+       } 
        let pot = this.state.pots.reduce((prev, cur) => prev + cur, 0);
        if (count_players_without_fold > 1 && this.state.win_players.length == 0 && this.state.table_cards.length == 5) {
+           //---------------------------------------------
+           let test_total_bet = 0;
+           this.state.players.forEach((pl, key, map) => {
+               test_total_bet+=pl.get_total_bet();
+           });
+           if(pot < test_total_bet){
+               console.error('Общий банк меньше суммы ставок');
+               this.state.players.forEach((pl, key, map) => {
+               console.log(pl.name,this.print_action(pl.action),pl.get_total_bet(),pl.money, this.build_pot());
+               });
+
+           }
+           //---------------------------------------------
            let manager = new this.mod_wasm.Menager(pot);
            this.state.players.forEach((pl, key, map) => {
                if (pl.action != FOLD) {
@@ -785,7 +804,7 @@ win() {
                    let c6 = new this.mod_wasm.Card(_c6.nom, _c6.suit);
                    let _c7 = this.state.table_cards[4];
                    let c7 = new this.mod_wasm.Card(_c7.nom, _c7.suit);
-                   console.log(c1.show_card(), c2.show_card(), c3.show_card(), c4.show_card(), c5.show_card(), c6.show_card(), c7.show_card());
+                   //console.log(c1.show_card(), c2.show_card(), c3.show_card(), c4.show_card(), c5.show_card(), c6.show_card(), c7.show_card());
                    let hand = new this.mod_wasm.Hand(String(pl.id), pl.get_total_bet(), c1, c2, c3, c4, c5, c6, c7);
                    manager.add_hand(hand);
                }
@@ -793,7 +812,7 @@ win() {
 
            let wins = manager.calculate();
            wins.forEach((total, index, map) => {
-               console.log('win=', this.state.players.get(parseInt(total.get_player_id(), 10)).name, total.get_win_pot());
+              // console.log('win=', this.state.players.get(parseInt(total.get_player_id(), 10)).name, total.get_win_pot());
                win_players.push(total);
            });
 
@@ -1146,7 +1165,7 @@ handleCheck(e) {
 getControlBtn(){
    let player = this.state.players.get(YOUR_ID);
    if(!player){
-     sleep(this.state.wait_step_game_circle).then(() => {   
+     sleep(1000/*this.state.wait_step_game_circle*/).then(() => {   
         if(this.state.start_game){this.game_circle();}
      });
      return;

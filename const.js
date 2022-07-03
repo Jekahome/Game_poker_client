@@ -1,4 +1,3 @@
-export const YOUR_ID = 1;
 
 export const CARD_DEALT = 0;
 export const ROUND_PREFLOP = 1;

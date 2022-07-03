@@ -38,7 +38,11 @@ function LinkExamapleUseState(){
             <a className="nav-link">Hook useState(test)</a>
           </Link>      
 }
-  
+function LinkLogin(){
+  return  <Link href="/login">
+            <a className="nav-link">Login</a>
+          </Link>      
+}
 export default function Layout({children}) {
     //return <html lang="en"><div className="container">{children}</div></html> 
     return <div className="container-fluid">
@@ -64,7 +68,10 @@ export default function Layout({children}) {
                         </li>
                         <li key={6} className="nav-item">
                            <LinkExamapleDb/>
-                        </li>                       
+                        </li>   
+                        <li key={7} className="nav-item">
+                           <LinkLogin/>
+                        </li>                      
                     </ul> 
                    {children}   
                 </div>
